@@ -118,6 +118,20 @@ function resolveChordDegree(localRootIndex, localQuality, chordSpec) {
   return { rootIndex: resolved.rootIndex, quality: resolved.quality, triad };
 }
 
+// ==================== 形体（7度・9度・付加6・付加4）====================
+
+function applyForm(triad, quality, form) {
+  const extra = [];
+  if (form.seventh) extra.push(triad.root - 2);
+  if (form.ninth) extra.push(triad.root + (quality === "major" ? 2 : -5));
+  if (form.add4) {
+    extra.push(triad.root + 3, triad.root + 6);
+  } else if (form.add6) {
+    extra.push(triad.root + 3);
+  }
+  return { ...triad, extra };
+}
+
 // ==================== 入れ子（複数階層） ====================
 
 function describeLevel(level) {
@@ -148,6 +162,7 @@ module.exports = {
   resolveChain,
   buildTriad,
   resolveChordDegree,
+  applyForm,
   ChordError,
   MAJOR_OFFSETS,
   MINOR_OFFSETS,

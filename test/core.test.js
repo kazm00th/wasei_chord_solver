@@ -159,3 +159,35 @@ const { resolveChordDegree } = require("../core.js");
 }
 
 console.log("Task 5: OK");
+
+const { applyForm } = require("../core.js");
+
+// C Dur V度7 = g h d f（root 1, major）
+{
+  const triad = { root: 1, third: 5, fifth: 2 };
+  const r = applyForm(triad, "major", { seventh: true, ninth: false, add6: false, add4: false });
+  assert.deepStrictEqual(r.extra, [-1]); // root+(-2) = 1-2 = -1 → F
+}
+
+// C Dur V度9 = g h d f a（長9度、root+2=3）
+{
+  const triad = { root: 1, third: 5, fifth: 2 };
+  const r = applyForm(triad, "major", { seventh: true, ninth: true, add6: false, add4: false });
+  assert.deepStrictEqual(r.extra, [-1, 3]);
+}
+
+// C Dur IV度付加6 = f a c d（root -1、+3 → 2）
+{
+  const triad = { root: -1, third: 3, fifth: 0 };
+  const r = applyForm(triad, "major", { seventh: false, ninth: false, add6: true, add4: false });
+  assert.deepStrictEqual(r.extra, [2]);
+}
+
+// C Dur IV度付加4 = f a c d h（付加6の2に加えて根音+6=5）
+{
+  const triad = { root: -1, third: 3, fifth: 0 };
+  const r = applyForm(triad, "major", { seventh: false, ninth: false, add6: false, add4: true });
+  assert.deepStrictEqual(r.extra, [2, 5]);
+}
+
+console.log("Task 6: OK");
