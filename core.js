@@ -15,7 +15,15 @@ function indexToNoteName(n) {
     accidentals = accidentals + 1;
   }
   if (accidentals > 0) return letter + "is".repeat(accidentals);
-  if (accidentals < 0) return letter + "es".repeat(-accidentals);
+  if (accidentals < 0) {
+    let num_flats = -accidentals;
+    // German notation: vowel-ending letters (E, A) use "s" for one flat, then "es" for additional
+    if ("AE".includes(letter)) {
+      return letter + "s" + "es".repeat(num_flats - 1);
+    } else {
+      return letter + "es".repeat(num_flats);
+    }
+  }
   return letter;
 }
 
