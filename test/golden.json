@@ -150,6 +150,12 @@
     "expectedPcs": [5, 9, 0, 3]
   },
   {
+    "name": "C Dur: III度付加6上変（applyAlterationが固定オフセットroot+3ではなくdiatonicContextから正しく付加6音を発見できることの回帰テスト）",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "III", "special": null, "form": { "add6": true }, "alteration": { "up": true }, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["E", "G", "H", "Cis"],
+    "expectedPcs": [4, 7, 11, 1]
+  },
+  {
     "name": "C Dur: 準IV度",
     "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "IV", "special": "quasi", "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
     "expectedNotes": ["F", "As", "C"],

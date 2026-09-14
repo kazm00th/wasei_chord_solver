@@ -243,9 +243,18 @@ const { applyAlteration } = require("../core.js");
 // C Dur IV度付加6上変 = f a c dis（付加6音を+7、5度は不変）
 {
   const chord = { root: -1, third: 3, fifth: 0, extra: [2] };
-  const r = applyAlteration(chord, { add6: true, add4: false }, { up: true, down: false });
+  const r = applyAlteration(chord, { add6: true, add4: false }, { up: true, down: false }, ivDegreeContext);
   assert.deepStrictEqual(r.extra, [9]);
   assert.strictEqual(r.fifth, 0); // 不変
+}
+
+// C Dur III度付加6上変 = e g h cis（付加6音の実値がroot+3(=7)と一致しない度数での回帰テスト。
+// 付加6音は度数(2+5)%7=I度の音=0で、これを+7した7が正しい結果）
+{
+  const iiiDegreeContext = { tonicIndex: 0, offsets: MAJOR_OFFSETS, degreeIndex: 2 };
+  const chord = { root: 4, third: 1, fifth: 5, extra: [0] };
+  const r = applyAlteration(chord, { add6: true, add4: false }, { up: true, down: false }, iiiDegreeContext);
+  assert.deepStrictEqual(r.extra, [7]); // 0 + 7 = 7 → Cis（root+3=7ではなく実際の付加6音0を正しく発見・変更できること）
 }
 
 // 変化なし（up/down both false）
