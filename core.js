@@ -134,7 +134,15 @@
   function resolveChordDegree(localRootIndex, localQuality, chordSpec) {
     const level = chordSpecialToLevel(chordSpec);
     const resolved = resolveLevel(localRootIndex, localQuality, level, true);
-    const triad = buildTriad(resolved.rootIndex, resolved.quality);
+
+    // V度の和音は常に導音を上げた長三和音が標準形（HANDOFF確定: 「V度和音」は
+    // C Dur/c Moll問わずg h dで、自然短調どおりの短三和音は実際にはほぼ使われない）。
+    // これは「V度和音」（今まさに構築している最終和音）にのみ適用され、「V度調」
+    // （resolveLevel/resolveChainが内部調を確立する側の解決）には適用しない——
+    // 両者は別物（HANDOFF §7.3注3）なので、ここ（chord構築の最終段）だけで上書きする。
+    const chordQuality =
+      level.degree === "V" && resolved.quality === "minor" ? "major" : resolved.quality;
+    const triad = buildTriad(resolved.rootIndex, chordQuality);
 
     // 7度・9度・付加6・付加4はquality（三和音の音程パターン）だけでは決まらず、
     // 「今いる調（localQuality）が本来使うオフセット表（長調表／自然短調表）」に
@@ -160,7 +168,7 @@
       };
     }
 
-    return { rootIndex: resolved.rootIndex, quality: resolved.quality, triad, diatonicContext };
+    return { rootIndex: resolved.rootIndex, quality: chordQuality, triad, diatonicContext };
   }
 
   // ==================== 形体（7度・9度・付加6・付加4）====================
@@ -181,7 +189,17 @@
     if (form.seventh) extra.push(diatonicNote(diatonicContext, 6));
     if (form.ninth) extra.push(diatonicNote(diatonicContext, 1));
     if (form.add4) {
-      extra.push(diatonicNote(diatonicContext, 5), diatonicNote(diatonicContext, 3));
+      let add4Note = diatonicNote(diatonicContext, 3);
+      // 付加4の音（限定進行音、第4音→I）が自然短調のVII度（導音）に着地する場合は
+      // 常に半音上げる（HANDOFF確定例: 準IV度付加4はC Dur自身の音のためVII度は
+      // 既にH＝上げ不要だが、c moll自身のIV度付加4ではVII度がB→Hに上がる）。
+      // V度と異なり三和音のqualityを丸ごと差し替える方式は使えない（付加4の音だけを
+      // 個別に上げる必要があるため）ので、着地した度数を見て判定する。
+      if (diatonicContext.offsets === MINOR_OFFSETS &&
+          VALID_DEGREES[(diatonicContext.degreeIndex + 3) % 7] === "VII") {
+        add4Note += 7;
+      }
+      extra.push(diatonicNote(diatonicContext, 5), add4Note);
     } else if (form.add6) {
       extra.push(diatonicNote(diatonicContext, 5));
     }
