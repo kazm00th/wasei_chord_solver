@@ -1,0 +1,112 @@
+[
+  {
+    "name": "C Dur: I度",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["C", "E", "G"]
+  },
+  {
+    "name": "C Dur: III度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "III", "table": "auto", "forceQuality": null }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["E", "G", "H"]
+  },
+  {
+    "name": "C Dur: プラスIII度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "III", "table": "auto", "forceQuality": "major" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["E", "Gis", "H"]
+  },
+  {
+    "name": "C Dur: 準III度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "III", "table": "quasi", "forceQuality": null }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["Es", "G", "B"]
+  },
+  {
+    "name": "C Dur: マイナス準III度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "III", "table": "quasi", "forceQuality": "minor" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["Es", "Ges", "B"]
+  },
+  {
+    "name": "C Dur: III度調の(IV度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "III", "table": "auto", "forceQuality": null }], "chord": { "degree": "IV", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["A", "C", "E"]
+  },
+  {
+    "name": "C Dur: プラスIII度調の(IV度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "III", "table": "auto", "forceQuality": "major" }], "chord": { "degree": "IV", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["A", "Cis", "E"]
+  },
+  {
+    "name": "C Dur: 準III度調の(IV度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "III", "table": "quasi", "forceQuality": null }], "chord": { "degree": "IV", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "C", "Es"]
+  },
+  {
+    "name": "C Dur: マイナス準III度調の(IV度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "III", "table": "quasi", "forceQuality": "minor" }], "chord": { "degree": "IV", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "Ces", "Es"]
+  },
+  {
+    "name": "C Dur: VI度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "VI", "table": "auto", "forceQuality": null }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["A", "C", "E"]
+  },
+  {
+    "name": "C Dur: プラスVI度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "VI", "table": "auto", "forceQuality": "major" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["A", "Cis", "E"]
+  },
+  {
+    "name": "C Dur: 準VI度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "VI", "table": "quasi", "forceQuality": null }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "C", "Es"]
+  },
+  {
+    "name": "C Dur: マイナス準VI度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [{ "degree": "VI", "table": "quasi", "forceQuality": "minor" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "Ces", "Es"]
+  },
+  {
+    "name": "c moll: III度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [{ "degree": "III", "table": "auto", "forceQuality": null }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["Es", "G", "B"]
+  },
+  {
+    "name": "c moll: マイナスIII度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [{ "degree": "III", "table": "auto", "forceQuality": "minor" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["Es", "Ges", "B"]
+  },
+  {
+    "name": "c moll: 同主III度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [{ "degree": "III", "table": "relative", "forceQuality": null }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["E", "G", "H"]
+  },
+  {
+    "name": "c moll: プラス同主III度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [{ "degree": "III", "table": "relative", "forceQuality": "major" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["E", "Gis", "H"]
+  },
+  {
+    "name": "c moll: VI度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [{ "degree": "VI", "table": "auto", "forceQuality": null }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "C", "Es"]
+  },
+  {
+    "name": "c moll: マイナスVI度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [{ "degree": "VI", "table": "auto", "forceQuality": "minor" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "Ces", "Es"]
+  },
+  {
+    "name": "c moll: 同主VI度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [{ "degree": "VI", "table": "relative", "forceQuality": null }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["A", "C", "E"]
+  },
+  {
+    "name": "c moll: プラス同主VI度調の(I度)",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [{ "degree": "VI", "table": "relative", "forceQuality": "major" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["A", "Cis", "E"]
+  },
+  {
+    "name": "a moll: III度調の(マイナス準VI度調の(I度))",
+    "spec": { "mainKey": { "index": 3, "quality": "minor" }, "innerChain": [{ "degree": "III", "table": "auto", "forceQuality": null }, { "degree": "VI", "table": "quasi", "forceQuality": "minor" }], "chord": { "degree": "I", "special": null, "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "Ces", "Es"]
+  }
+]
