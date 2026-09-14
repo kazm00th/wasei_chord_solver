@@ -76,10 +76,34 @@ function resolveLevel(rootIndex, currentQuality, level) {
   };
 }
 
+// ==================== 入れ子（複数階層） ====================
+
+function describeLevel(level) {
+  if (level.degree === "napoliII") return "ナポリII調";
+  if (level.degree === "raisedVII") return "変位VII調";
+  const tablePart = level.table === "quasi" ? "準" : level.table === "relative" ? "同主" : "";
+  const forcePart = level.forceQuality === "major" ? "プラス" : level.forceQuality === "minor" ? "マイナス" : "";
+  return `${forcePart}${tablePart}${level.degree}度調`;
+}
+
+function resolveChain(mainKey, chain) {
+  let rootIndex = mainKey.index;
+  let quality = mainKey.quality;
+  const steps = [`主調（index ${rootIndex}, ${quality}）`];
+  for (const level of chain) {
+    const result = resolveLevel(rootIndex, quality, level);
+    rootIndex = result.rootIndex;
+    quality = result.quality;
+    steps.push(`${describeLevel(level)}（index ${rootIndex}, ${quality}）`);
+  }
+  return { rootIndex, quality, steps };
+}
+
 module.exports = {
   indexToNoteName,
   indexToPitchClass,
   resolveLevel,
+  resolveChain,
   ChordError,
   MAJOR_OFFSETS,
   MINOR_OFFSETS,

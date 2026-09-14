@@ -70,3 +70,27 @@ const { resolveLevel, ChordError } = require("../core.js");
 }
 
 console.log("Task 2: OK");
+
+const { resolveChain } = require("../core.js");
+
+// a moll：III度調の中でマイナス準VI度調 → as moll（本セッションで検算済みの入れ子例）
+{
+  const mainKey = { index: 3, quality: "minor" }; // a moll
+  const chain = [
+    { degree: "III", table: "auto", forceQuality: null },       // → C Dur (root 0, major)
+    { degree: "VI", table: "quasi", forceQuality: "minor" }      // → as moll (root -4, minor)
+  ];
+  const r = resolveChain(mainKey, chain);
+  assert.strictEqual(r.rootIndex, -4);
+  assert.strictEqual(r.quality, "minor");
+  assert.strictEqual(r.steps.length, 3); // 主調 + 2階層
+}
+
+// 空のchain → mainKeyがそのまま返る
+{
+  const r = resolveChain({ index: 0, quality: "major" }, []);
+  assert.strictEqual(r.rootIndex, 0);
+  assert.strictEqual(r.quality, "major");
+}
+
+console.log("Task 3: OK");
