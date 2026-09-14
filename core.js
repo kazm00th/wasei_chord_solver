@@ -31,4 +31,59 @@ function indexToPitchClass(n) {
   return (((n * 7) % 12) + 12) % 12;
 }
 
-module.exports = { indexToNoteName, indexToPitchClass };
+// ==================== 度数オフセット・質パターン ====================
+
+const MAJOR_OFFSETS = { I: 0, II: 2, III: 4, IV: -1, V: 1, VI: 3, VII: 5 };
+const MINOR_OFFSETS = { I: 0, II: 2, III: -3, IV: -1, V: 1, VI: -4, VII: -2 };
+const MAJOR_QUALITY = { I: "major", II: "minor", III: "minor", IV: "major", V: "major", VI: "minor", VII: "diminished" };
+const MINOR_QUALITY = { I: "minor", II: "diminished", III: "major", IV: "minor", V: "minor", VI: "major", VII: "major" };
+
+const SPECIAL_DEGREES = {
+  napoliII: { offset: -5, quality: "major" },
+  raisedVII: { offset: 5, quality: "major" }
+};
+
+class ChordError extends Error {}
+
+// level = { degree, table: "auto"|"quasi"|"relative", forceQuality: null|"major"|"minor" }
+function resolveLevel(rootIndex, currentQuality, level) {
+  if (level.degree === "napoliII" || level.degree === "raisedVII") {
+    const special = SPECIAL_DEGREES[level.degree];
+    return {
+      rootIndex: rootIndex + special.offset,
+      quality: level.forceQuality || special.quality
+    };
+  }
+
+  const useMajorTable =
+    level.table === "relative" ? true :
+    level.table === "quasi" ? false :
+    currentQuality === "major";
+
+  const offsets = useMajorTable ? MAJOR_OFFSETS : MINOR_OFFSETS;
+  const qualityTable = useMajorTable ? MAJOR_QUALITY : MINOR_QUALITY;
+  const naturalQuality = qualityTable[level.degree];
+
+  if (naturalQuality === "diminished") {
+    throw new ChordError(
+      `度数${level.degree}は${useMajorTable ? "長調" : "自然短調"}オフセット表では減三和音のため、内部調として成立しません`
+    );
+  }
+
+  return {
+    rootIndex: rootIndex + offsets[level.degree],
+    quality: level.forceQuality || naturalQuality
+  };
+}
+
+module.exports = {
+  indexToNoteName,
+  indexToPitchClass,
+  resolveLevel,
+  ChordError,
+  MAJOR_OFFSETS,
+  MINOR_OFFSETS,
+  MAJOR_QUALITY,
+  MINOR_QUALITY,
+  SPECIAL_DEGREES
+};
