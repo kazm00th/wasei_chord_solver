@@ -87,6 +87,37 @@ function buildTriad(rootIndex, quality) {
   };
 }
 
+// ==================== 和音自体の特殊形（度数→レベル変換） ====================
+
+function chordSpecialToLevel(chordSpec) {
+  const degree = chordSpec.degree;
+  switch (chordSpec.special) {
+    case null:
+    case undefined:
+      return { degree, table: "auto", forceQuality: null };
+    case "quasi":
+      return { degree, table: "quasi", forceQuality: null };
+    case "doric":
+      if (degree !== "IV") throw new ChordError("ドリアIV度はIV度にのみ指定できます");
+      return { degree: "IV", table: "auto", forceQuality: "major" };
+    case "napoli":
+      if (degree !== "II") throw new ChordError("ナポリII度はII度にのみ指定できます");
+      return { degree: "napoliII", table: "auto", forceQuality: null };
+    case "raisedVII":
+      if (degree !== "VII") throw new ChordError("変位VII度はVII度にのみ指定できます");
+      return { degree: "raisedVII", table: "auto", forceQuality: null };
+    default:
+      throw new ChordError(`未知のchord.special: ${chordSpec.special}`);
+  }
+}
+
+function resolveChordDegree(localRootIndex, localQuality, chordSpec) {
+  const level = chordSpecialToLevel(chordSpec);
+  const resolved = resolveLevel(localRootIndex, localQuality, level);
+  const triad = buildTriad(resolved.rootIndex, resolved.quality);
+  return { rootIndex: resolved.rootIndex, quality: resolved.quality, triad };
+}
+
 // ==================== 入れ子（複数階層） ====================
 
 function describeLevel(level) {
@@ -116,6 +147,7 @@ module.exports = {
   resolveLevel,
   resolveChain,
   buildTriad,
+  resolveChordDegree,
   ChordError,
   MAJOR_OFFSETS,
   MINOR_OFFSETS,

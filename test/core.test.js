@@ -110,3 +110,52 @@ const { buildTriad } = require("../core.js");
 }
 
 console.log("Task 4: OK");
+
+const { resolveChordDegree } = require("../core.js");
+
+// C Dur内で通常のIV度 = f, a, c
+{
+  const r = resolveChordDegree(0, "major", { degree: "IV", special: null });
+  assert.strictEqual(r.rootIndex, -1);
+  assert.strictEqual(r.quality, "major");
+  assert.deepStrictEqual(r.triad, { root: -1, third: 3, fifth: 0 });
+}
+
+// C Dur内で準IV度 = f, as, c（chord.special="quasi"）
+{
+  const r = resolveChordDegree(0, "major", { degree: "IV", special: "quasi" });
+  assert.strictEqual(r.rootIndex, -1);
+  assert.strictEqual(r.quality, "minor");
+  assert.deepStrictEqual(r.triad, { root: -1, third: -4, fifth: 0 });
+}
+
+// c moll内でドリアIV度 = f, a, c（プラスIV度と同義、質をmajorに強制）
+{
+  const r = resolveChordDegree(0, "minor", { degree: "IV", special: "doric" });
+  assert.strictEqual(r.rootIndex, -1);
+  assert.strictEqual(r.quality, "major");
+  assert.deepStrictEqual(r.triad, { root: -1, third: 3, fifth: 0 });
+}
+
+// ドリアIV度をIV以外に指定するとエラー
+{
+  assert.throws(() => {
+    resolveChordDegree(0, "minor", { degree: "V", special: "doric" });
+  }, ChordError);
+}
+
+// c moll内でナポリII度 = des, f, as（root -5, major）
+{
+  const r = resolveChordDegree(0, "minor", { degree: "II", special: "napoli" });
+  assert.strictEqual(r.rootIndex, -5);
+  assert.strictEqual(r.quality, "major");
+}
+
+// C Dur内で変位VII度 = h, dis, fis（H Durの三和音、root 5, major）
+{
+  const r = resolveChordDegree(0, "major", { degree: "VII", special: "raisedVII" });
+  assert.strictEqual(r.rootIndex, 5);
+  assert.strictEqual(r.quality, "major");
+}
+
+console.log("Task 5: OK");
