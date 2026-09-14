@@ -202,6 +202,14 @@ const vDegreeContext = { tonicIndex: 0, offsets: MAJOR_OFFSETS, degreeIndex: 4 }
   assert.deepStrictEqual(r.extra, [-1, 3]); // VI度の音 = 0 + 3 = 3 → A
 }
 
+// 9度は7度を自動的に内包する（seventh: falseでもninth: trueだけで7度の音も含まれる、
+// 付加4が付加6の音を自動的に内包するのと同じ設計）
+{
+  const triad = { root: 1, third: 5, fifth: 2 };
+  const r = applyForm(triad, "major", { seventh: false, ninth: true, add6: false, add4: false }, vDegreeContext);
+  assert.deepStrictEqual(r.extra, [-1, 3]); // seventh:trueを指定した場合と同じ結果になる
+}
+
 // 7度・9度にdiatonicContextが無い場合（ナポリ・変位VII等）はエラー
 {
   const triad = { root: 1, third: 5, fifth: 2 };

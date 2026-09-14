@@ -144,6 +144,12 @@
     "expectedPcs": [11, 2, 5, 9]
   },
   {
+    "name": "C Dur: V度9（seventh未指定でもninthだけで7度の音を自動的に内包する）",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "V", "special": null, "form": { "seventh": false, "ninth": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["G", "H", "D", "F", "A"],
+    "expectedPcs": [7, 11, 2, 5, 9]
+  },
+  {
     "name": "C Dur: IV度付加6上変",
     "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "IV", "special": null, "form": { "add6": true }, "alteration": { "up": true }, "omission": {}, "inversion": 0 } },
     "expectedNotes": ["F", "A", "C", "Dis"],

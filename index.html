@@ -144,14 +144,6 @@ function calculate() {
 
 document.getElementById("addInnerLevel").addEventListener("click", addInnerLevel);
 document.getElementById("calculate").addEventListener("click", calculate);
-
-// 9の和音は必ず7の和音を内包する（HANDOFF §5「7の和音の原型の上に9度の音を付加すると
-// 9の和音になる」）ので、9度を入れたら7度も自動でオンにする。
-document.getElementById("formNinth").addEventListener("change", (e) => {
-  if (e.target.checked) {
-    document.getElementById("formSeventh").checked = true;
-  }
-});
 </script>
 </body>
 </html>

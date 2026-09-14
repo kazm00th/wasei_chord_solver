@@ -193,7 +193,10 @@
     if (needsDiatonic && !diatonicContext) {
       throw new ChordError("この和音には7度・9度・付加6・付加4を付加できません（ダイアトニックな度数を持たないため）");
     }
-    if (form.seventh) extra.push(diatonicNote(diatonicContext, 6));
+    // 9度は必ず7度を内包する（HANDOFF §5「7の和音の原型の上に9度の音を付加すると
+    // 9の和音になる」）。付加4が常に付加6の音を内包するのと同じ理屈で、
+    // form.seventhが未指定でもform.ninthだけで7度の音を自動的に含める。
+    if (form.seventh || form.ninth) extra.push(diatonicNote(diatonicContext, 6));
     if (form.ninth) extra.push(diatonicNote(diatonicContext, 1));
     if (form.add4) {
       let add4Note = diatonicNote(diatonicContext, 3);
