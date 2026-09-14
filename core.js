@@ -135,15 +135,45 @@
     const level = chordSpecialToLevel(chordSpec);
     const resolved = resolveLevel(localRootIndex, localQuality, level, true);
     const triad = buildTriad(resolved.rootIndex, resolved.quality);
-    return { rootIndex: resolved.rootIndex, quality: resolved.quality, triad };
+
+    // 7度・9度はquality（三和音の音程パターン）だけでは決まらず、内部調が
+    // どちらのオフセット表（長調表／自然短調表）で解決されたかに依存する
+    // （例: C Durの I度・IV度は長7度、c Mollの III度・VI度も長7度になるが、
+    // triad.qualityは両者とも"major"で区別できない）。ナポリII度・変位VII度は
+    // SPECIAL_DEGREESによる固定音程の擬似度数でVALID_DEGREESに属さないため、
+    // ダイアトニックな7度・9度という概念自体が定義されない（diatonicContext=null）。
+    let diatonicContext = null;
+    if (VALID_DEGREES.includes(level.degree)) {
+      const useMajorTable =
+        level.table === "relative" ? true :
+        level.table === "quasi" ? false :
+        localQuality === "major";
+      diatonicContext = {
+        tonicIndex: localRootIndex,
+        offsets: useMajorTable ? MAJOR_OFFSETS : MINOR_OFFSETS,
+        degreeIndex: VALID_DEGREES.indexOf(level.degree)
+      };
+    }
+
+    return { rootIndex: resolved.rootIndex, quality: resolved.quality, triad, diatonicContext };
   }
 
   // ==================== 形体（7度・9度・付加6・付加4）====================
 
-  function applyForm(triad, quality, form) {
+  function applyForm(triad, quality, form, diatonicContext) {
     const extra = [];
-    if (form.seventh) extra.push(triad.root - 2);
-    if (form.ninth) extra.push(triad.root + (quality === "major" ? 2 : -5));
+    if (form.seventh || form.ninth) {
+      if (!diatonicContext) {
+        throw new ChordError("この和音には7度・9度を付加できません（ダイアトニックな度数を持たないため）");
+      }
+      const { tonicIndex, offsets, degreeIndex } = diatonicContext;
+      if (form.seventh) {
+        extra.push(tonicIndex + offsets[VALID_DEGREES[(degreeIndex + 6) % 7]]);
+      }
+      if (form.ninth) {
+        extra.push(tonicIndex + offsets[VALID_DEGREES[(degreeIndex + 1) % 7]]);
+      }
+    }
     if (form.add4) {
       extra.push(triad.root + 3, triad.root + 6);
     } else if (form.add6) {
@@ -230,7 +260,7 @@
         add6: !!formSpec.add6,
         add4: !!formSpec.add4
       };
-      const withForm = applyForm(chordDegree.triad, chordDegree.quality, form);
+      const withForm = applyForm(chordDegree.triad, chordDegree.quality, form, chordDegree.diatonicContext);
 
       const alteration = {
         up: !!alterationSpec.up,

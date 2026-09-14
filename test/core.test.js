@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { indexToNoteName, indexToPitchClass } = require("../core.js");
+const { indexToNoteName, indexToPitchClass, MAJOR_OFFSETS } = require("../core.js");
 
 // 基本
 assert.strictEqual(indexToNoteName(0), "C");
@@ -185,18 +185,29 @@ console.log("Task 5: OK");
 
 const { applyForm } = require("../core.js");
 
-// C Dur V度7 = g h d f（root 1, major）
+// V度のdiatonicContext（C Dur、長調オフセット表、degreeIndex=4）
+const vDegreeContext = { tonicIndex: 0, offsets: MAJOR_OFFSETS, degreeIndex: 4 };
+
+// C Dur V度7 = g h d f（7度はIV度の音＝root-1、ダイアトニックに決まる）
 {
   const triad = { root: 1, third: 5, fifth: 2 };
-  const r = applyForm(triad, "major", { seventh: true, ninth: false, add6: false, add4: false });
-  assert.deepStrictEqual(r.extra, [-1]); // root+(-2) = 1-2 = -1 → F
+  const r = applyForm(triad, "major", { seventh: true, ninth: false, add6: false, add4: false }, vDegreeContext);
+  assert.deepStrictEqual(r.extra, [-1]); // IV度の音 = 0 + (-1) = -1 → F
 }
 
-// C Dur V度9 = g h d f a（長9度、root+2=3）
+// C Dur V度9 = g h d f a（9度はVI度の音＝root+3、ダイアトニックに決まる）
 {
   const triad = { root: 1, third: 5, fifth: 2 };
-  const r = applyForm(triad, "major", { seventh: true, ninth: true, add6: false, add4: false });
-  assert.deepStrictEqual(r.extra, [-1, 3]);
+  const r = applyForm(triad, "major", { seventh: true, ninth: true, add6: false, add4: false }, vDegreeContext);
+  assert.deepStrictEqual(r.extra, [-1, 3]); // VI度の音 = 0 + 3 = 3 → A
+}
+
+// 7度・9度にdiatonicContextが無い場合（ナポリ・変位VII等）はエラー
+{
+  const triad = { root: 1, third: 5, fifth: 2 };
+  assert.throws(() => {
+    applyForm(triad, "major", { seventh: true, ninth: false, add6: false, add4: false }, null);
+  }, ChordError);
 }
 
 // C Dur IV度付加6 = f a c d（root -1、+3 → 2）
