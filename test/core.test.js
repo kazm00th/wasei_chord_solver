@@ -244,3 +244,44 @@ const { applyOmissionAndInversion } = require("../core.js");
 }
 
 console.log("Task 8: OK");
+
+const { deriveChord } = require("../core.js");
+
+// C Dur：III度調の（I度） = e, g, h（e moll、本セッション検算済み）
+{
+  const spec = {
+    mainKey: { index: 0, quality: "major" },
+    innerChain: [{ degree: "III", table: "auto", forceQuality: null }],
+    chord: { degree: "I", special: null, form: {}, alteration: {}, omission: {}, inversion: 0 }
+  };
+  const r = deriveChord(spec);
+  assert.deepStrictEqual(r.notes, ["E", "G", "H"]);
+  assert.deepStrictEqual(r.pcs, [4, 7, 11]);
+}
+
+// a moll：III度調の（マイナス準VI度調の（I度）） = As, Ces, Es（本セッションで検算済みの3階層入れ子）
+{
+  const spec = {
+    mainKey: { index: 3, quality: "minor" },
+    innerChain: [
+      { degree: "III", table: "auto", forceQuality: null },
+      { degree: "VI", table: "quasi", forceQuality: "minor" }
+    ],
+    chord: { degree: "I", special: null, form: {}, alteration: {}, omission: {}, inversion: 0 }
+  };
+  const r = deriveChord(spec);
+  assert.deepStrictEqual(r.notes, ["As", "Ces", "Es"]);
+}
+
+// エラー処理: 長調でVII度調を要求 → { error: ... }
+{
+  const spec = {
+    mainKey: { index: 0, quality: "major" },
+    innerChain: [{ degree: "VII", table: "auto", forceQuality: null }],
+    chord: { degree: "I", special: null, form: {}, alteration: {}, omission: {}, inversion: 0 }
+  };
+  const r = deriveChord(spec);
+  assert.ok(r.error);
+}
+
+console.log("Task 9: OK");

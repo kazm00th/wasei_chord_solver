@@ -190,6 +190,47 @@ function applyOmissionAndInversion(chord, omission, inversion) {
   return rotated;
 }
 
+// ==================== 統合関数 ====================
+
+function deriveChord(spec) {
+  try {
+    const chain = resolveChain(spec.mainKey, spec.innerChain);
+    const chordDegree = resolveChordDegree(chain.rootIndex, chain.quality, {
+      degree: spec.chord.degree,
+      special: spec.chord.special || null
+    });
+
+    const form = {
+      seventh: !!spec.chord.form.seventh,
+      ninth: !!spec.chord.form.ninth,
+      add6: !!spec.chord.form.add6,
+      add4: !!spec.chord.form.add4
+    };
+    const withForm = applyForm(chordDegree.triad, chordDegree.quality, form);
+
+    const alteration = {
+      up: !!spec.chord.alteration.up,
+      down: !!spec.chord.alteration.down
+    };
+    const withAlteration = applyAlteration(withForm, form, alteration);
+
+    const omission = {
+      root: !!spec.chord.omission.root,
+      fifth: !!spec.chord.omission.fifth
+    };
+    const indices = applyOmissionAndInversion(withAlteration, omission, spec.chord.inversion || 0);
+
+    return {
+      notes: indices.map(indexToNoteName),
+      pcs: indices.map(indexToPitchClass),
+      steps: [...chain.steps, `和音: ${spec.chord.degree}度（${chordDegree.quality}）`]
+    };
+  } catch (err) {
+    if (err instanceof ChordError) return { error: err.message };
+    throw err;
+  }
+}
+
 module.exports = {
   indexToNoteName,
   indexToPitchClass,
@@ -200,6 +241,7 @@ module.exports = {
   applyForm,
   applyAlteration,
   applyOmissionAndInversion,
+  deriveChord,
   ChordError,
   MAJOR_OFFSETS,
   MINOR_OFFSETS,
