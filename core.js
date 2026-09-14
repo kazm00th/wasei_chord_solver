@@ -136,21 +136,26 @@
     const resolved = resolveLevel(localRootIndex, localQuality, level, true);
     const triad = buildTriad(resolved.rootIndex, resolved.quality);
 
-    // 7度・9度はquality（三和音の音程パターン）だけでは決まらず、内部調が
-    // どちらのオフセット表（長調表／自然短調表）で解決されたかに依存する
-    // （例: C Durの I度・IV度は長7度、c Mollの III度・VI度も長7度になるが、
-    // triad.qualityは両者とも"major"で区別できない）。ナポリII度・変位VII度は
-    // SPECIAL_DEGREESによる固定音程の擬似度数でVALID_DEGREESに属さないため、
-    // ダイアトニックな7度・9度という概念自体が定義されない（diatonicContext=null）。
+    // 7度・9度・付加6・付加4はquality（三和音の音程パターン）だけでは決まらず、
+    // 「今いる調（localQuality）が本来使うオフセット表（長調表／自然短調表）」に
+    // 依存する（例: C Durの I度・IV度は長7度、c Mollの III度・VI度も長7度になるが、
+    // triad.qualityは両者とも"major"で区別できない）。
+    //
+    // ここでlevel.table（"quasi"/"relative"）は**使わない**。準（chord.special="quasi"）
+    // は三和音そのものを同主短調の形に借用するだけで、内部調を新たに確立するわけでは
+    // ないため、その上に積む7度・9度・付加音はあくまで「今いる調」の自然音のまま
+    // （HANDOFF確定例: 準IV度付加4 = f as c d h — 付加音d・hはC Durの音のままで、
+    // 借用先のc mollの音（b等）にはならない）。level.tableで内部調そのものを
+    // 切り替えるinnerChain側の演算子（§7.9）とは異なる場面であることに注意。
+    //
+    // ナポリII度・変位VII度はSPECIAL_DEGREESによる固定音程の擬似度数で
+    // VALID_DEGREESに属さないため、ダイアトニックな7度・9度という概念自体が
+    // 定義されない（diatonicContext=null）。
     let diatonicContext = null;
     if (VALID_DEGREES.includes(level.degree)) {
-      const useMajorTable =
-        level.table === "relative" ? true :
-        level.table === "quasi" ? false :
-        localQuality === "major";
       diatonicContext = {
         tonicIndex: localRootIndex,
-        offsets: useMajorTable ? MAJOR_OFFSETS : MINOR_OFFSETS,
+        offsets: localQuality === "major" ? MAJOR_OFFSETS : MINOR_OFFSETS,
         degreeIndex: VALID_DEGREES.indexOf(level.degree)
       };
     }
@@ -160,24 +165,25 @@
 
   // ==================== 形体（7度・9度・付加6・付加4）====================
 
+  // diatonicContextのオフセット表から、和音根音の度数を基準に`steps`度上（3度累積の
+  // 度数差）の自然音を引く。7度=+6、9度=+1、付加6=+5、付加4の追加音=+3（HANDOFF §5参照）。
+  function diatonicNote(diatonicContext, steps) {
+    const { tonicIndex, offsets, degreeIndex } = diatonicContext;
+    return tonicIndex + offsets[VALID_DEGREES[(degreeIndex + steps) % 7]];
+  }
+
   function applyForm(triad, quality, form, diatonicContext) {
     const extra = [];
-    if (form.seventh || form.ninth) {
-      if (!diatonicContext) {
-        throw new ChordError("この和音には7度・9度を付加できません（ダイアトニックな度数を持たないため）");
-      }
-      const { tonicIndex, offsets, degreeIndex } = diatonicContext;
-      if (form.seventh) {
-        extra.push(tonicIndex + offsets[VALID_DEGREES[(degreeIndex + 6) % 7]]);
-      }
-      if (form.ninth) {
-        extra.push(tonicIndex + offsets[VALID_DEGREES[(degreeIndex + 1) % 7]]);
-      }
+    const needsDiatonic = form.seventh || form.ninth || form.add6 || form.add4;
+    if (needsDiatonic && !diatonicContext) {
+      throw new ChordError("この和音には7度・9度・付加6・付加4を付加できません（ダイアトニックな度数を持たないため）");
     }
+    if (form.seventh) extra.push(diatonicNote(diatonicContext, 6));
+    if (form.ninth) extra.push(diatonicNote(diatonicContext, 1));
     if (form.add4) {
-      extra.push(triad.root + 3, triad.root + 6);
+      extra.push(diatonicNote(diatonicContext, 5), diatonicNote(diatonicContext, 3));
     } else if (form.add6) {
-      extra.push(triad.root + 3);
+      extra.push(diatonicNote(diatonicContext, 5));
     }
     return { ...triad, extra };
   }

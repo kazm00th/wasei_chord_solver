@@ -210,18 +210,21 @@ const vDegreeContext = { tonicIndex: 0, offsets: MAJOR_OFFSETS, degreeIndex: 4 }
   }, ChordError);
 }
 
-// C Dur IV度付加6 = f a c d（root -1、+3 → 2）
+// IV度のdiatonicContext（C Dur、長調オフセット表、degreeIndex=3）
+const ivDegreeContext = { tonicIndex: 0, offsets: MAJOR_OFFSETS, degreeIndex: 3 };
+
+// C Dur IV度付加6 = f a c d（付加6の音はII度の音、ダイアトニックに決まる）
 {
   const triad = { root: -1, third: 3, fifth: 0 };
-  const r = applyForm(triad, "major", { seventh: false, ninth: false, add6: true, add4: false });
-  assert.deepStrictEqual(r.extra, [2]);
+  const r = applyForm(triad, "major", { seventh: false, ninth: false, add6: true, add4: false }, ivDegreeContext);
+  assert.deepStrictEqual(r.extra, [2]); // II度の音 = 0 + 2 = 2 → D
 }
 
-// C Dur IV度付加4 = f a c d h（付加6の2に加えて根音+6=5）
+// C Dur IV度付加4 = f a c d h（付加6の音D＋VII度の音H）
 {
   const triad = { root: -1, third: 3, fifth: 0 };
-  const r = applyForm(triad, "major", { seventh: false, ninth: false, add6: false, add4: true });
-  assert.deepStrictEqual(r.extra, [2, 5]);
+  const r = applyForm(triad, "major", { seventh: false, ninth: false, add6: false, add4: true }, ivDegreeContext);
+  assert.deepStrictEqual(r.extra, [2, 5]); // D, VII度の音 = 0 + 5 = 5 → H
 }
 
 console.log("Task 6: OK");

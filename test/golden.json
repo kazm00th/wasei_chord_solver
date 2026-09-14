@@ -156,6 +156,24 @@
     "expectedPcs": [5, 8, 0]
   },
   {
+    "name": "C Dur: 準IV度付加6（付加音はC Dur自身の音になる、ID297の前段）",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "IV", "special": "quasi", "form": { "add6": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["F", "As", "C", "D"],
+    "expectedPcs": [5, 8, 0, 2]
+  },
+  {
+    "name": "C Dur: 準IV度付加6上変（ID297検算例: f as c dis）",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "IV", "special": "quasi", "form": { "add6": true }, "alteration": { "up": true }, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["F", "As", "C", "Dis"],
+    "expectedPcs": [5, 8, 0, 3]
+  },
+  {
+    "name": "C Dur: 準IV度付加4（ID587検算例: f as c d h）",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "IV", "special": "quasi", "form": { "add4": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["F", "As", "C", "D", "H"],
+    "expectedPcs": [5, 8, 0, 2, 11]
+  },
+  {
     "name": "c moll: ナポリII度",
     "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [], "chord": { "degree": "II", "special": "napoli", "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
     "expectedNotes": ["Des", "F", "As"],
