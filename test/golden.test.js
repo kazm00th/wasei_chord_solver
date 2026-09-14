@@ -10,6 +10,11 @@ for (const testCase of golden) {
     testCase.expectedNotes,
     `${testCase.name}: expected ${JSON.stringify(testCase.expectedNotes)}, got ${JSON.stringify(result.notes)}`
   );
+  assert.deepStrictEqual(
+    result.pcs,
+    testCase.expectedPcs,
+    `${testCase.name}: expected pcs ${JSON.stringify(testCase.expectedPcs)}, got ${JSON.stringify(result.pcs)}`
+  );
   passed++;
 }
 console.log(`Golden tests: ${passed}/${golden.length} OK`);

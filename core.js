@@ -53,13 +53,19 @@
   class ChordError extends Error {}
 
   // level = { degree, table: "auto"|"quasi"|"relative", forceQuality: null|"major"|"minor" }
-  function resolveLevel(rootIndex, currentQuality, level) {
+  const VALID_DEGREES = ["I", "II", "III", "IV", "V", "VI", "VII"];
+
+  function resolveLevel(rootIndex, currentQuality, level, allowDiminished = false) {
     if (level.degree === "napoliII" || level.degree === "raisedVII") {
       const special = SPECIAL_DEGREES[level.degree];
       return {
         rootIndex: rootIndex + special.offset,
         quality: level.forceQuality || special.quality
       };
+    }
+
+    if (!VALID_DEGREES.includes(level.degree)) {
+      throw new ChordError(`不明な度数: ${level.degree}`);
     }
 
     const useMajorTable =
@@ -72,6 +78,12 @@
     const naturalQuality = qualityTable[level.degree];
 
     if (naturalQuality === "diminished") {
+      if (allowDiminished && !level.forceQuality) {
+        return {
+          rootIndex: rootIndex + offsets[level.degree],
+          quality: "diminished"
+        };
+      }
       throw new ChordError(
         `度数${level.degree}は${useMajorTable ? "長調" : "自然短調"}オフセット表では減三和音のため、内部調として成立しません`
       );
@@ -87,10 +99,11 @@
 
   function buildTriad(rootIndex, quality) {
     const thirdOffset = quality === "major" ? 4 : -3;
+    const fifthOffset = quality === "diminished" ? -6 : 1;
     return {
       root: rootIndex,
       third: rootIndex + thirdOffset,
-      fifth: rootIndex + 1
+      fifth: rootIndex + fifthOffset
     };
   }
 
@@ -120,7 +133,7 @@
 
   function resolveChordDegree(localRootIndex, localQuality, chordSpec) {
     const level = chordSpecialToLevel(chordSpec);
-    const resolved = resolveLevel(localRootIndex, localQuality, level);
+    const resolved = resolveLevel(localRootIndex, localQuality, level, true);
     const triad = buildTriad(resolved.rootIndex, resolved.quality);
     return { rootIndex: resolved.rootIndex, quality: resolved.quality, triad };
   }
@@ -207,23 +220,27 @@
         special: spec.chord.special || null
       });
 
+      const formSpec = spec.chord.form || {};
+      const alterationSpec = spec.chord.alteration || {};
+      const omissionSpec = spec.chord.omission || {};
+
       const form = {
-        seventh: !!spec.chord.form.seventh,
-        ninth: !!spec.chord.form.ninth,
-        add6: !!spec.chord.form.add6,
-        add4: !!spec.chord.form.add4
+        seventh: !!formSpec.seventh,
+        ninth: !!formSpec.ninth,
+        add6: !!formSpec.add6,
+        add4: !!formSpec.add4
       };
       const withForm = applyForm(chordDegree.triad, chordDegree.quality, form);
 
       const alteration = {
-        up: !!spec.chord.alteration.up,
-        down: !!spec.chord.alteration.down
+        up: !!alterationSpec.up,
+        down: !!alterationSpec.down
       };
       const withAlteration = applyAlteration(withForm, form, alteration);
 
       const omission = {
-        root: !!spec.chord.omission.root,
-        fifth: !!spec.chord.omission.fifth
+        root: !!omissionSpec.root,
+        fifth: !!omissionSpec.fifth
       };
       const indices = applyOmissionAndInversion(withAlteration, omission, spec.chord.inversion || 0);
 

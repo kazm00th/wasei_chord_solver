@@ -158,6 +158,29 @@ const { resolveChordDegree } = require("../core.js");
   assert.strictEqual(r.quality, "major");
 }
 
+// C Dur内でVII度（減三和音）は和音としては成立する = h, d, f（root 5, diminished）
+{
+  const r = resolveChordDegree(0, "major", { degree: "VII", special: null });
+  assert.strictEqual(r.rootIndex, 5);
+  assert.strictEqual(r.quality, "diminished");
+  assert.deepStrictEqual(r.triad, { root: 5, third: 2, fifth: -1 }); // H, D, F
+}
+
+// c moll内でII度（減三和音）も和音としては成立する = d, f, as（root 2, diminished）
+{
+  const r = resolveChordDegree(0, "minor", { degree: "II", special: null });
+  assert.strictEqual(r.rootIndex, 2);
+  assert.strictEqual(r.quality, "diminished");
+  assert.deepStrictEqual(r.triad, { root: 2, third: -1, fifth: -4 });
+}
+
+// resolveChainは内部調としてのVII度（減三和音）を引き続き拒否する
+{
+  assert.throws(() => {
+    resolveChain({ index: 0, quality: "major" }, [{ degree: "VII", table: "auto", forceQuality: null }]);
+  }, ChordError);
+}
+
 console.log("Task 5: OK");
 
 const { applyForm } = require("../core.js");
@@ -282,6 +305,28 @@ const { deriveChord } = require("../core.js");
   };
   const r = deriveChord(spec);
   assert.ok(r.error);
+}
+
+// 不明な度数 "VIII" → { error: ... }（NaNだらけの結果ではなくエラーになる）
+{
+  const spec = {
+    mainKey: { index: 0, quality: "major" },
+    innerChain: [],
+    chord: { degree: "VIII", special: null, form: {}, alteration: {}, omission: {}, inversion: 0 }
+  };
+  const r = deriveChord(spec);
+  assert.ok(r.error);
+}
+
+// chord.form/alteration/omissionを丸ごと省略しても正常に動作する（{}指定と同じ結果）
+{
+  const spec = {
+    mainKey: { index: 0, quality: "major" },
+    innerChain: [],
+    chord: { degree: "I", special: null, inversion: 0 }
+  };
+  const r = deriveChord(spec);
+  assert.deepStrictEqual(r.notes, ["C", "E", "G"]);
 }
 
 console.log("Task 9: OK");
