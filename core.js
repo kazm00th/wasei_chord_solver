@@ -132,6 +132,23 @@ function applyForm(triad, quality, form) {
   return { ...triad, extra };
 }
 
+// ==================== 上変・下変 ====================
+
+function applyAlteration(chord, form, alteration) {
+  const shift = alteration.up ? 7 : alteration.down ? -7 : 0;
+  if (shift === 0) return { ...chord, extra: [...chord.extra] };
+
+  const result = { ...chord, extra: [...chord.extra] };
+  if (form.add6 || form.add4) {
+    // 付加6の音（root+3にあたる要素）を探して書き換える
+    const idx = result.extra.findIndex((v) => v === chord.root + 3);
+    if (idx !== -1) result.extra[idx] = result.extra[idx] + shift;
+  } else {
+    result.fifth = result.fifth + shift;
+  }
+  return result;
+}
+
 // ==================== 入れ子（複数階層） ====================
 
 function describeLevel(level) {
@@ -163,6 +180,7 @@ module.exports = {
   buildTriad,
   resolveChordDegree,
   applyForm,
+  applyAlteration,
   ChordError,
   MAJOR_OFFSETS,
   MINOR_OFFSETS,

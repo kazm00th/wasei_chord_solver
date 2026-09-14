@@ -191,3 +191,31 @@ const { applyForm } = require("../core.js");
 }
 
 console.log("Task 6: OK");
+
+const { applyAlteration } = require("../core.js");
+
+// C Dur V度上変 = g h dis（5度を+7）
+{
+  const chord = { root: 1, third: 5, fifth: 2, extra: [] };
+  const r = applyAlteration(chord, { add6: false, add4: false }, { up: true, down: false });
+  assert.strictEqual(r.fifth, 9);
+  assert.strictEqual(r.root, 1);
+  assert.strictEqual(r.third, 5);
+}
+
+// C Dur IV度付加6上変 = f a c dis（付加6音を+7、5度は不変）
+{
+  const chord = { root: -1, third: 3, fifth: 0, extra: [2] };
+  const r = applyAlteration(chord, { add6: true, add4: false }, { up: true, down: false });
+  assert.deepStrictEqual(r.extra, [9]);
+  assert.strictEqual(r.fifth, 0); // 不変
+}
+
+// 変化なし（up/down both false）
+{
+  const chord = { root: 1, third: 5, fifth: 2, extra: [] };
+  const r = applyAlteration(chord, { add6: false, add4: false }, { up: false, down: false });
+  assert.strictEqual(r.fifth, 2);
+}
+
+console.log("Task 7: OK");
