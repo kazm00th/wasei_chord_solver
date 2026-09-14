@@ -180,11 +180,11 @@ const { resolveChordDegree } = require("../core.js");
   }, ChordError);
 }
 
-// C Dur内で変位VII度 = h, dis, fis（H Durの三和音、root 5, major）
+// C Dur内で変位VII度 = h, d, fis（h mollの三和音、root 5, minor。プラス指定なしの既定形）
 {
   const r = resolveChordDegree(0, "major", { degree: "VII", special: "raisedVII" });
   assert.strictEqual(r.rootIndex, 5);
-  assert.strictEqual(r.quality, "major");
+  assert.strictEqual(r.quality, "minor");
 }
 
 // C Dur内でVII度（減三和音）は和音としては成立する = h, d, f（root 5, diminished）

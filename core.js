@@ -47,7 +47,12 @@
 
   const SPECIAL_DEGREES = {
     napoliII: { offset: -5, quality: "major" },
-    raisedVII: { offset: 5, quality: "major" }
+    // 変位VII調（無印）の既定質はminor（h moll = プラス指定なしの標準形）。
+    // 「長7度上の長調」ではなく「長7度上の短調」がプラス/マイナス指定なしの
+    // 基本形で、プラス変位VII調（forceQuality="major"）でH Durになる。
+    // ユーザー確認済み（マイナス/プラスが「同主短調/同主長調」を表すという
+    // §5の一般規則どおり、変位VII調も他の度数調と同じ長調/短調の二重性を持つ）。
+    raisedVII: { offset: 5, quality: "minor" }
   };
 
   class ChordError extends Error {}
