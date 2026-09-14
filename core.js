@@ -116,6 +116,12 @@
       case undefined:
         return { degree, table: "auto", forceQuality: null };
       case "quasi":
+        // 準X度は「同主短調(c Moll)での形を長調で用いたもの」（HANDOFF §2、長調専用）。
+        // 短調で指定しても意味がない（自分自身の同主短調を借りることになる）ため、
+        // ナポリII度と同様に文脈のqualityを検証する。
+        if (localQuality !== "major") {
+          throw new ChordError("準X度は長調でのみ使用できます（自分自身の同主短調を借用することになるため）");
+        }
         return { degree, table: "quasi", forceQuality: null };
       case "doric":
         if (degree !== "IV") throw new ChordError("ドリアIV度はIV度にのみ指定できます");

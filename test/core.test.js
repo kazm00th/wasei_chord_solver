@@ -129,6 +129,14 @@ const { resolveChordDegree } = require("../core.js");
   assert.deepStrictEqual(r.triad, { root: -1, third: -4, fifth: 0 });
 }
 
+// c moll内で準IV度を指定するとエラー（準X度は長調専用のため、自分自身の
+// 同主短調を借用することになり意味をなさない）
+{
+  assert.throws(() => {
+    resolveChordDegree(0, "minor", { degree: "IV", special: "quasi" });
+  }, ChordError);
+}
+
 // c moll内でドリアIV度 = f, a, c（プラスIV度と同義、質をmajorに強制）
 {
   const r = resolveChordDegree(0, "minor", { degree: "IV", special: "doric" });
