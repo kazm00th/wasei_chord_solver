@@ -172,6 +172,30 @@ function resolveChain(mainKey, chain) {
   return { rootIndex, quality, steps };
 }
 
+// ==================== 根省・5省・転回 ====================
+
+function applyOmissionAndInversion(chord, omission, inversion) {
+  // 元の和音の構成音を低音から高音の「定義順」で並べる: root, third, fifth, ...extra
+  let full = [chord.root, chord.third, chord.fifth, ...chord.extra];
+
+  // 転回: 指定された番号だけ先頭の音を末尾へ回す（省略前の全体を基準に回す）
+  let rotated = full.slice(inversion).concat(full.slice(0, inversion));
+
+  // 省略の適用
+  if (omission.root) rotated = rotated.filter((v) => v !== chord.root);
+  if (omission.fifth) rotated = rotated.filter((v) => v !== chord.fifth);
+
+  // 根省で、かつ転回が明示されていない場合、慣例上3度を最低音にする
+  if (omission.root && inversion === 0) {
+    const thirdIdx = rotated.indexOf(chord.third);
+    if (thirdIdx > 0) {
+      rotated = rotated.slice(thirdIdx).concat(rotated.slice(0, thirdIdx));
+    }
+  }
+
+  return rotated;
+}
+
 module.exports = {
   indexToNoteName,
   indexToPitchClass,
@@ -181,6 +205,7 @@ module.exports = {
   resolveChordDegree,
   applyForm,
   applyAlteration,
+  applyOmissionAndInversion,
   ChordError,
   MAJOR_OFFSETS,
   MINOR_OFFSETS,

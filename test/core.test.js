@@ -219,3 +219,28 @@ const { applyAlteration } = require("../core.js");
 }
 
 console.log("Task 7: OK");
+
+const { applyOmissionAndInversion } = require("../core.js");
+
+// C Dur I度（基本形、転回なし）= [C, E, G]
+{
+  const chord = { root: 0, third: 4, fifth: 1, extra: [] };
+  const notes = applyOmissionAndInversion(chord, { root: false, fifth: false }, 0);
+  assert.deepStrictEqual(notes, [0, 4, 1]);
+}
+
+// C Dur I度1転（3度が最低音）= [E, G, C]
+{
+  const chord = { root: 0, third: 4, fifth: 1, extra: [] };
+  const notes = applyOmissionAndInversion(chord, { root: false, fifth: false }, 1);
+  assert.deepStrictEqual(notes, [4, 1, 0]);
+}
+
+// C Dur V度9根省（根省すると慣例上3度が最低音になる）= [H, D, F, A]
+{
+  const chord = { root: 1, third: 5, fifth: 2, extra: [-1, 3] }; // V度9 = g h d f a
+  const notes = applyOmissionAndInversion(chord, { root: true, fifth: false }, 0);
+  assert.deepStrictEqual(notes, [5, 2, -1, 3]); // h(根省) d f a、rootのgを除外し3度が先頭
+}
+
+console.log("Task 8: OK");
