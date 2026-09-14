@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>和声記号 構成音導出ツール</title>
+<style>
+  body { font-family: sans-serif; max-width: 800px; margin: 2em auto; }
+  fieldset { margin-bottom: 1em; }
+  .inner-level { border: 1px solid #ccc; padding: 0.5em; margin-bottom: 0.5em; }
+  #result { white-space: pre-wrap; background: #f5f5f5; padding: 1em; }
+  .error { color: #c00; }
+</style>
+</head>
+<body>
+<h1>和声記号 構成音導出ツール</h1>
+
+<fieldset>
+  <legend>主調</legend>
+  五度圏インデックス: <input type="number" id="mainKeyIndex" value="0">
+  質:
+  <select id="mainKeyQuality">
+    <option value="major">長調</option>
+    <option value="minor">短調</option>
+  </select>
+</fieldset>
+
+<fieldset>
+  <legend>内部調の入れ子（外側→内側の順）</legend>
+  <div id="innerChainContainer"></div>
+  <button type="button" id="addInnerLevel">＋ 内部調を追加</button>
+</fieldset>
+
+<fieldset>
+  <legend>和音</legend>
+  度数: <select id="chordDegree">
+    <option>I</option><option>II</option><option>III</option><option>IV</option>
+    <option>V</option><option>VI</option><option>VII</option>
+  </select>
+  特殊形: <select id="chordSpecial">
+    <option value="">なし</option>
+    <option value="quasi">準</option>
+    <option value="napoli">ナポリ</option>
+    <option value="doric">ドリア</option>
+    <option value="raisedVII">変位VII</option>
+  </select>
+  <br>
+  <label><input type="checkbox" id="formSeventh"> 7度</label>
+  <label><input type="checkbox" id="formNinth"> 9度</label>
+  <label><input type="checkbox" id="formAdd6"> 付加6</label>
+  <label><input type="checkbox" id="formAdd4"> 付加4</label>
+  <br>
+  <label><input type="checkbox" id="alterationUp"> 上変</label>
+  <label><input type="checkbox" id="alterationDown"> 下変</label>
+  <br>
+  <label><input type="checkbox" id="omissionRoot"> 根省</label>
+  <label><input type="checkbox" id="omissionFifth"> 5省</label>
+  <br>
+  転回: <input type="number" id="inversion" value="0" min="0">
+</fieldset>
+
+<button type="button" id="calculate">構成音を導出</button>
+
+<div id="result"></div>
+
+<script src="core.js"></script>
+<script>
+"use strict";
+
+function addInnerLevel() {
+  const container = document.getElementById("innerChainContainer");
+  const div = document.createElement("div");
+  div.className = "inner-level";
+  div.innerHTML = `
+    度数: <select class="level-degree">
+      <option>I</option><option>II</option><option>III</option><option>IV</option>
+      <option>V</option><option>VI</option><option>VII</option>
+      <option value="napoliII">ナポリII</option>
+      <option value="raisedVII">変位VII</option>
+    </select>
+    表: <select class="level-table">
+      <option value="auto">通常</option>
+      <option value="quasi">準</option>
+      <option value="relative">同主</option>
+    </select>
+    強制質: <select class="level-force">
+      <option value="">なし</option>
+      <option value="major">プラス（長）</option>
+      <option value="minor">マイナス（短）</option>
+    </select>
+    <button type="button" class="remove-level">×削除</button>
+  `;
+  div.querySelector(".remove-level").addEventListener("click", () => div.remove());
+  container.appendChild(div);
+}
+
+function readInnerChain() {
+  const levels = document.querySelectorAll(".inner-level");
+  return Array.from(levels).map((div) => ({
+    degree: div.querySelector(".level-degree").value,
+    table: div.querySelector(".level-table").value,
+    forceQuality: div.querySelector(".level-force").value || null
+  }));
+}
+
+function calculate() {
+  const spec = {
+    mainKey: {
+      index: parseInt(document.getElementById("mainKeyIndex").value, 10),
+      quality: document.getElementById("mainKeyQuality").value
+    },
+    innerChain: readInnerChain(),
+    chord: {
+      degree: document.getElementById("chordDegree").value,
+      special: document.getElementById("chordSpecial").value || null,
+      form: {
+        seventh: document.getElementById("formSeventh").checked,
+        ninth: document.getElementById("formNinth").checked,
+        add6: document.getElementById("formAdd6").checked,
+        add4: document.getElementById("formAdd4").checked
+      },
+      alteration: {
+        up: document.getElementById("alterationUp").checked,
+        down: document.getElementById("alterationDown").checked
+      },
+      omission: {
+        root: document.getElementById("omissionRoot").checked,
+        fifth: document.getElementById("omissionFifth").checked
+      },
+      inversion: parseInt(document.getElementById("inversion").value, 10)
+    }
+  };
+
+  const result = WaseiCore.deriveChord(spec);
+  const resultDiv = document.getElementById("result");
+  if (result.error) {
+    resultDiv.innerHTML = `<span class="error">エラー: ${result.error}</span>`;
+    return;
+  }
+  resultDiv.textContent =
+    "構成音: " + result.notes.join(", ") + "\n" +
+    "ピッチクラス: " + result.pcs.join(", ") + "\n\n" +
+    "導出ステップ:\n" + result.steps.join("\n");
+}
+
+document.getElementById("addInnerLevel").addEventListener("click", addInnerLevel);
+document.getElementById("calculate").addEventListener("click", calculate);
+</script>
+</body>
+</html>
