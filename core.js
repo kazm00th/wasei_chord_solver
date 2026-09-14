@@ -145,25 +145,32 @@
     const triad = buildTriad(resolved.rootIndex, chordQuality);
 
     // 7度・9度・付加6・付加4はquality（三和音の音程パターン）だけでは決まらず、
-    // 「今いる調（localQuality）が本来使うオフセット表（長調表／自然短調表）」に
+    // 「三和音そのものを解決したのと同じオフセット表（長調表／自然短調表）」に
     // 依存する（例: C Durの I度・IV度は長7度、c Mollの III度・VI度も長7度になるが、
     // triad.qualityは両者とも"major"で区別できない）。
     //
-    // ここでlevel.table（"quasi"/"relative"）は**使わない**。準（chord.special="quasi"）
-    // は三和音そのものを同主短調の形に借用するだけで、内部調を新たに確立するわけでは
-    // ないため、その上に積む7度・9度・付加音はあくまで「今いる調」の自然音のまま
-    // （HANDOFF確定例: 準IV度付加4 = f as c d h — 付加音d・hはC Durの音のままで、
-    // 借用先のc mollの音（b等）にはならない）。level.tableで内部調そのものを
-    // 切り替えるinnerChain側の演算子（§7.9）とは異なる場面であることに注意。
+    // ここではlevel.table（"quasi"/"relative"）を三和音と**同じ**ように使う
+    // （useMajorTableをresolveLevel内部の判定式と揃える）。これはHANDOFF §2の
+    // 「最重要の規則: 準X（C Dur）の構成音はX（c Moll）と完全に一致する」を
+    // 拡張形（7度・9度・付加音を含む）でも成立させるための選択——借用元の表を
+    // そのまま使えば、準X度の拡張音は自動的にX度(c Moll)の拡張音と一致する。
+    // （一時的に「今いる調自身の表を使う」方式を試したが、準II度9・準VI度9・
+    // 準I度7でこの規則が崩れることが判明したため、この方式に戻した。
+    // 準IV度付加4=f as c d hは、この表でも下記の導音上げ補正と組み合わさって
+    // 同じ結果になるため矛盾しない）。
     //
     // ナポリII度・変位VII度はSPECIAL_DEGREESによる固定音程の擬似度数で
     // VALID_DEGREESに属さないため、ダイアトニックな7度・9度という概念自体が
     // 定義されない（diatonicContext=null）。
     let diatonicContext = null;
     if (VALID_DEGREES.includes(level.degree)) {
+      const useMajorTable =
+        level.table === "relative" ? true :
+        level.table === "quasi" ? false :
+        localQuality === "major";
       diatonicContext = {
         tonicIndex: localRootIndex,
-        offsets: localQuality === "major" ? MAJOR_OFFSETS : MINOR_OFFSETS,
+        offsets: useMajorTable ? MAJOR_OFFSETS : MINOR_OFFSETS,
         degreeIndex: VALID_DEGREES.indexOf(level.degree)
       };
     }

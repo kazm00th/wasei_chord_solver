@@ -180,6 +180,42 @@
     "expectedPcs": [5, 8, 0, 2, 11]
   },
   {
+    "name": "C Dur: 準I度7（HANDOFF最重要規則「準X(C Dur)=X(c Moll)」の拡張形での回帰テスト）",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "I", "special": "quasi", "form": { "seventh": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["C", "Es", "G", "B"],
+    "expectedPcs": [0, 3, 7, 10]
+  },
+  {
+    "name": "c moll: I度7（準I度(C Dur)と一致することの確認用ペア）",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [], "chord": { "degree": "I", "special": null, "form": { "seventh": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["C", "Es", "G", "B"],
+    "expectedPcs": [0, 3, 7, 10]
+  },
+  {
+    "name": "C Dur: 準II度9（HANDOFF最重要規則の回帰テスト、度数IIIに着地する拡張音）",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "II", "special": "quasi", "form": { "seventh": true, "ninth": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["D", "F", "As", "C", "Es"],
+    "expectedPcs": [2, 5, 8, 0, 3]
+  },
+  {
+    "name": "c moll: II度9（準II度9(C Dur)と一致することの確認用ペア）",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [], "chord": { "degree": "II", "special": null, "form": { "seventh": true, "ninth": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["D", "F", "As", "C", "Es"],
+    "expectedPcs": [2, 5, 8, 0, 3]
+  },
+  {
+    "name": "C Dur: 準VI度9（HANDOFF最重要規則の回帰テスト、度数VIに着地する拡張音）",
+    "spec": { "mainKey": { "index": 0, "quality": "major" }, "innerChain": [], "chord": { "degree": "VI", "special": "quasi", "form": { "seventh": true, "ninth": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "C", "Es", "G", "B"],
+    "expectedPcs": [8, 0, 3, 7, 10]
+  },
+  {
+    "name": "c moll: VI度9（準VI度9(C Dur)と一致することの確認用ペア）",
+    "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [], "chord": { "degree": "VI", "special": null, "form": { "seventh": true, "ninth": true }, "alteration": {}, "omission": {}, "inversion": 0 } },
+    "expectedNotes": ["As", "C", "Es", "G", "B"],
+    "expectedPcs": [8, 0, 3, 7, 10]
+  },
+  {
     "name": "c moll: ナポリII度",
     "spec": { "mainKey": { "index": 0, "quality": "minor" }, "innerChain": [], "chord": { "degree": "II", "special": "napoli", "form": {}, "alteration": {}, "omission": {}, "inversion": 0 } },
     "expectedNotes": ["Des", "F", "As"],
