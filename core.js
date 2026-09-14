@@ -76,6 +76,17 @@ function resolveLevel(rootIndex, currentQuality, level) {
   };
 }
 
+// ==================== 三和音構築 ====================
+
+function buildTriad(rootIndex, quality) {
+  const thirdOffset = quality === "major" ? 4 : -3;
+  return {
+    root: rootIndex,
+    third: rootIndex + thirdOffset,
+    fifth: rootIndex + 1
+  };
+}
+
 // ==================== 入れ子（複数階層） ====================
 
 function describeLevel(level) {
@@ -104,6 +115,7 @@ module.exports = {
   indexToPitchClass,
   resolveLevel,
   resolveChain,
+  buildTriad,
   ChordError,
   MAJOR_OFFSETS,
   MINOR_OFFSETS,

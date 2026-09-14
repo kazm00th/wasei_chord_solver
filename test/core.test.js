@@ -94,3 +94,19 @@ const { resolveChain } = require("../core.js");
 }
 
 console.log("Task 3: OK");
+
+const { buildTriad } = require("../core.js");
+
+// C Dur I度 = C, E, G（index 0, 4, 1）
+{
+  const t = buildTriad(0, "major");
+  assert.deepStrictEqual(t, { root: 0, third: 4, fifth: 1 });
+}
+
+// a moll I度 = A, C, E（index 3, 0, 4）
+{
+  const t = buildTriad(3, "minor");
+  assert.deepStrictEqual(t, { root: 3, third: 0, fifth: 4 });
+}
+
+console.log("Task 4: OK");
