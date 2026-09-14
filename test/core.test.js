@@ -151,6 +151,27 @@ const { resolveChordDegree } = require("../core.js");
   assert.strictEqual(r.quality, "major");
 }
 
+// C Dur内で準ナポリII度 = des, f, as（ナポリII度と同じ構成音、長調専用）
+{
+  const r = resolveChordDegree(0, "major", { degree: "II", special: "quasiNapoli" });
+  assert.strictEqual(r.rootIndex, -5);
+  assert.strictEqual(r.quality, "major");
+}
+
+// 長調でナポリII度（準なし）を指定するとエラー（短調専用のため）
+{
+  assert.throws(() => {
+    resolveChordDegree(0, "major", { degree: "II", special: "napoli" });
+  }, ChordError);
+}
+
+// 短調で準ナポリII度を指定するとエラー（長調専用のため）
+{
+  assert.throws(() => {
+    resolveChordDegree(0, "minor", { degree: "II", special: "quasiNapoli" });
+  }, ChordError);
+}
+
 // C Dur内で変位VII度 = h, dis, fis（H Durの三和音、root 5, major）
 {
   const r = resolveChordDegree(0, "major", { degree: "VII", special: "raisedVII" });

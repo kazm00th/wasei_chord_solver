@@ -109,7 +109,7 @@
 
   // ==================== 和音自体の特殊形（度数→レベル変換） ====================
 
-  function chordSpecialToLevel(chordSpec) {
+  function chordSpecialToLevel(chordSpec, localQuality) {
     const degree = chordSpec.degree;
     switch (chordSpec.special) {
       case null:
@@ -122,6 +122,18 @@
         return { degree: "IV", table: "auto", forceQuality: "major" };
       case "napoli":
         if (degree !== "II") throw new ChordError("ナポリII度はII度にのみ指定できます");
+        // ナポリII度は同主短調の借用元そのもの＝短調にのみ存在する。長調で
+        // 使う場合は「準」を伴った借用形（準ナポリII度）でなければならない
+        // （「準」は同主短調の形を長調で用いたもの、という§2の一般原則の一例）。
+        if (localQuality !== "minor") {
+          throw new ChordError("ナポリII度は短調でのみ使用できます（長調では準ナポリII度を使用してください）");
+        }
+        return { degree: "napoliII", table: "auto", forceQuality: null };
+      case "quasiNapoli":
+        if (degree !== "II") throw new ChordError("準ナポリII度はII度にのみ指定できます");
+        if (localQuality !== "major") {
+          throw new ChordError("準ナポリII度は長調でのみ使用できます（短調ではナポリII度を使用してください）");
+        }
         return { degree: "napoliII", table: "auto", forceQuality: null };
       case "raisedVII":
         if (degree !== "VII") throw new ChordError("変位VII度はVII度にのみ指定できます");
@@ -132,7 +144,7 @@
   }
 
   function resolveChordDegree(localRootIndex, localQuality, chordSpec) {
-    const level = chordSpecialToLevel(chordSpec);
+    const level = chordSpecialToLevel(chordSpec, localQuality);
     const resolved = resolveLevel(localRootIndex, localQuality, level, true);
 
     // V度の和音は常に導音を上げた長三和音が標準形（HANDOFF確定: 「V度和音」は
