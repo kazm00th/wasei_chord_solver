@@ -8,6 +8,8 @@
 
 `index.html` をブラウザで開くだけです（ビルド不要）。
 
+GitHub Pagesでも公開しています: https://kazm00th.github.io/wasei_chord_solver/
+
 ## テスト
 
 ```bash
