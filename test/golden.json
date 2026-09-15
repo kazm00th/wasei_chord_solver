@@ -415,5 +415,17 @@
 
   { "name": "C Dur II度上変は理論上不成立エラー（II度は短三和音、HANDOFF §7.7.1注1: 上変は長3和音・長7の和音限定）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"II","special":null,"form":{},"alteration":{"up":true},"omission":{},"inversion":0}}, "expectedError": true },
   { "name": "C Dur VII度上変は理論上不成立エラー（VII度は減三和音）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"VII","special":null,"form":{},"alteration":{"up":true},"omission":{},"inversion":0}}, "expectedError": true },
-  { "name": "準IV度付加6上変は引き続き成立する（三和音自体はminorでも、上変の対象は付加音でありこの制約の対象外）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":"quasi","form":{"add6":true},"alteration":{"up":true},"omission":{},"inversion":0}}, "expectedNotes": ["F","As","C","Dis"], "expectedPcs": [5,8,0,3] }
+  { "name": "準IV度付加6上変は引き続き成立する（三和音自体はminorでも、上変の対象は付加音でありこの制約の対象外）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":"quasi","form":{"add6":true},"alteration":{"up":true},"omission":{},"inversion":0}}, "expectedNotes": ["F","As","C","Dis"], "expectedPcs": [5,8,0,3] },
+
+  { "name": "V度7の5省は理論上不成立エラー（D・D2機能は根省のみ、HANDOFF §2.1/§7.10）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"V","special":null,"form":{"seventh":true},"alteration":{},"omission":{"fifth":true},"inversion":0}}, "expectedError": true },
+  { "name": "IV度付加6の根省は理論上不成立エラー（S機能は5省のみ）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":null,"form":{"add6":true},"alteration":{},"omission":{"root":true},"inversion":0}}, "expectedError": true },
+  { "name": "V度7の根省は引き続き成立する（D機能は根省が正しい）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"V","special":null,"form":{"seventh":true},"alteration":{},"omission":{"root":true},"inversion":0}}, "expectedNotes": ["H","D","F"], "expectedPcs": [11,2,5] },
+  { "name": "IV度付加6の5省は引き続き成立する（S機能は5省が正しい）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":null,"form":{"add6":true},"alteration":{},"omission":{"fifth":true},"inversion":0}}, "expectedNotes": ["F","A","D"], "expectedPcs": [5,9,2] },
+
+  { "name": "C Dur ドリアIV度は理論上不成立エラー（HANDOFF §2: ドリアIV度は短調専用）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":"doric","form":{},"alteration":{},"omission":{},"inversion":0}}, "expectedError": true },
+
+  { "name": "I度10転は転回数が範囲外でエラー（構成音3音に対し10転は不成立）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"I","special":null,"form":{},"alteration":{},"omission":{},"inversion":10}}, "expectedError": true },
+  { "name": "I度2転は範囲内で引き続き成立する", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"I","special":null,"form":{},"alteration":{},"omission":{},"inversion":2}}, "expectedNotes": ["G","C","E"], "expectedPcs": [7,0,4] },
+
+  { "name": "V度の上変と下変の同時指定はエラー（矛盾した指定）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"V","special":null,"form":{},"alteration":{"up":true,"down":true},"omission":{},"inversion":0}}, "expectedError": true }
 ]

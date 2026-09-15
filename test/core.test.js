@@ -152,6 +152,13 @@ const { resolveChordDegree } = require("../core.js");
   }, ChordError);
 }
 
+// 長調でドリアIV度を指定するとエラー（短調専用のため）
+{
+  assert.throws(() => {
+    resolveChordDegree(0, "major", { degree: "IV", special: "doric" });
+  }, ChordError);
+}
+
 // c moll内でナポリII度 = des, f, as（root -5, major）
 {
   const r = resolveChordDegree(0, "minor", { degree: "II", special: "napoli" });

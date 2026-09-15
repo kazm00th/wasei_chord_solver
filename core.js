@@ -130,6 +130,11 @@
         return { degree, table: "quasi", forceQuality: null };
       case "doric":
         if (degree !== "IV") throw new ChordError("ドリアIV度はIV度にのみ指定できます");
+        // HANDOFF §2「ドリアIV度｜短調で第6音を上げたIV（短調専用）」。
+        // 準・ナポリ・準ナポリと同じ基準でlocalQualityを検証する。
+        if (localQuality !== "minor") {
+          throw new ChordError("ドリアIV度は短調でのみ使用できます");
+        }
         return { degree: "IV", table: "auto", forceQuality: "major" };
       case "napoli":
         if (degree !== "II") throw new ChordError("ナポリII度はII度にのみ指定できます");
@@ -349,13 +354,32 @@
         up: !!alterationSpec.up,
         down: !!alterationSpec.down
       };
+      if (alteration.up && alteration.down) {
+        throw new ChordError("上変と下変を同時に指定することはできません");
+      }
       const withAlteration = applyAlteration(withForm, form, alteration, chordDegree.diatonicContext, chordDegree.quality);
 
       const omission = {
         root: !!omissionSpec.root,
         fifth: !!omissionSpec.fifth
       };
-      const indices = applyOmissionAndInversion(withAlteration, omission, spec.chord.inversion || 0);
+      // 根省か5省かは機能で自動的に決まる（HANDOFF §2.1・§7.10確定）:
+      // D・D2機能（V度族・V度のV度族・II度族・付加6/付加4を伴わないIV度族等）は
+      // 根省、S機能（IV度付加6・付加4）は5省。機能と逆の省略は理論上不成立。
+      if ((form.add6 || form.add4) && omission.root) {
+        throw new ChordError("付加6・付加4（S機能）の和音には根省ではなく5省を使用してください");
+      }
+      if (!(form.add6 || form.add4) && omission.fifth) {
+        throw new ChordError("この和音（D・D2機能）には5省ではなく根省を使用してください");
+      }
+
+      const inversion = spec.chord.inversion || 0;
+      const totalNotes = 3 + withAlteration.extra.length;
+      if (inversion < 0 || inversion >= totalNotes) {
+        throw new ChordError(`転回数は0〜${totalNotes - 1}の範囲で指定してください（この和音の構成音数は${totalNotes}）`);
+      }
+
+      const indices = applyOmissionAndInversion(withAlteration, omission, inversion);
 
       return {
         notes: indices.map(indexToNoteName),
