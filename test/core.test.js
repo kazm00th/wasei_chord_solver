@@ -268,13 +268,27 @@ console.log("Task 6: OK");
 
 const { applyAlteration } = require("../core.js");
 
-// C Dur V度上変 = g h dis（5度を+7）
+// C Dur V度上変 = g h dis（5度を+7、major quality）
 {
   const chord = { root: 1, third: 5, fifth: 2, extra: [] };
-  const r = applyAlteration(chord, { add6: false, add4: false }, { up: true, down: false });
+  const r = applyAlteration(chord, { add6: false, add4: false }, { up: true, down: false }, undefined, "major");
   assert.strictEqual(r.fifth, 9);
   assert.strictEqual(r.root, 1);
   assert.strictEqual(r.third, 5);
+}
+
+// 短三和音・減三和音への上変はエラー（HANDOFF §7.7.1注1: 上変の拡張は長3和音・長7の和音限定）
+{
+  const chord = { root: 2, third: -1, fifth: 3, extra: [] }; // D F A（II度、minor quality）
+  assert.throws(() => {
+    applyAlteration(chord, { add6: false, add4: false }, { up: true, down: false }, undefined, "minor");
+  }, ChordError);
+}
+{
+  const chord = { root: 5, third: 2, fifth: -1, extra: [] }; // H D F（VII度、diminished quality）
+  assert.throws(() => {
+    applyAlteration(chord, { add6: false, add4: false }, { up: true, down: false }, undefined, "diminished");
+  }, ChordError);
 }
 
 // C Dur IV度付加6上変 = f a c dis（付加6音を+7、5度は不変）

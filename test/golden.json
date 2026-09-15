@@ -411,5 +411,9 @@
 
   { "name": "IV度付加6下変は理論上不成立エラー（下変は「V度のV度」専用、島岡理論の英訳39-5 p.61-64にも対応節が無い）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":null,"form":{"add6":true},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true },
   { "name": "IV度付加4下変は理論上不成立エラー", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":null,"form":{"add4":true},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true },
-  { "name": "準IV度付加6下変も理論上不成立エラー", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":"quasi","form":{"add6":true},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true }
+  { "name": "準IV度付加6下変も理論上不成立エラー", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":"quasi","form":{"add6":true},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true },
+
+  { "name": "C Dur II度上変は理論上不成立エラー（II度は短三和音、HANDOFF §7.7.1注1: 上変は長3和音・長7の和音限定）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"II","special":null,"form":{},"alteration":{"up":true},"omission":{},"inversion":0}}, "expectedError": true },
+  { "name": "C Dur VII度上変は理論上不成立エラー（VII度は減三和音）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"VII","special":null,"form":{},"alteration":{"up":true},"omission":{},"inversion":0}}, "expectedError": true },
+  { "name": "準IV度付加6上変は引き続き成立する（三和音自体はminorでも、上変の対象は付加音でありこの制約の対象外）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"IV","special":"quasi","form":{"add6":true},"alteration":{"up":true},"omission":{},"inversion":0}}, "expectedNotes": ["F","As","C","Dis"], "expectedPcs": [5,8,0,3] }
 ]

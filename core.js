@@ -241,9 +241,19 @@
 
   // ==================== 上変・下変 ====================
 
-  function applyAlteration(chord, form, alteration, diatonicContext) {
+  function applyAlteration(chord, form, alteration, diatonicContext, quality) {
     const shift = alteration.up ? 7 : alteration.down ? -7 : 0;
     if (shift === 0) return { ...chord, extra: [...chord.extra] };
+
+    if (!(form.add6 || form.add4) && alteration.up && quality !== "major") {
+      // HANDOFF §7.7.1注1「V諸和音との形体上の類似性ゆえに、他音度の長3和音・
+      // 長7の和音を基礎とする付加和音にも上方変位の適用を広げることができる」
+      // ——上変（5度そのものを直接動かす場合）はmajor quality（長三和音・長7の
+      // 和音）の和音にのみ拡張可能で、短三和音・減三和音には理論的根拠が無い。
+      // 付加6・付加4の上変（対象は5度ではなく付加音）はこの制約の対象外
+      // （準IV度付加6上変=f as c disのように、三和音自体がminorでも成立する）。
+      throw new ChordError("上変は長三和音・長7の和音にのみ適用できます（この和音はmajor質ではありません）");
+    }
 
     if (form.add6 || form.add4) {
       // HANDOFF §2「上変｜『V度』の第5音、または『IV度付加』の第6音を半音上げる」
@@ -339,7 +349,7 @@
         up: !!alterationSpec.up,
         down: !!alterationSpec.down
       };
-      const withAlteration = applyAlteration(withForm, form, alteration, chordDegree.diatonicContext);
+      const withAlteration = applyAlteration(withForm, form, alteration, chordDegree.diatonicContext, chordDegree.quality);
 
       const omission = {
         root: !!omissionSpec.root,
