@@ -245,8 +245,18 @@
     const shift = alteration.up ? 7 : alteration.down ? -7 : 0;
     if (shift === 0) return { ...chord, extra: [...chord.extra] };
 
-    const result = { ...chord, extra: [...chord.extra] };
     if (form.add6 || form.add4) {
+      // HANDOFF §2「上変｜『V度』の第5音、または『IV度付加』の第6音を半音上げる」
+      // 「下変｜『V度のV度』の第5音を半音下げる」——下変はIV度付加系には定義されて
+      // いない（島岡理論の英訳39-5 p.61-64でも、上変にはD/S両側の鏡像的な節がある
+      // 一方、下変はD側のみで、S側（IV度付加）に対応する節は存在しない。下変は
+      // 「別の調の固有和音として再解釈される」現象であり、上変のように単純に対称化
+      // できるものではない）。IV度付加6/付加4下変は理論上不成立のため拒否する。
+      if (alteration.down) {
+        throw new ChordError("IV度付加6・付加4には下変を適用できません（下変は『V度のV度』専用）");
+      }
+
+      const result = { ...chord, extra: [...chord.extra] };
       // 「IV度付加の第6音」（付加6の音、diatonicNoteのsteps=5のスロット）を
       // 書き換える。度数によって値が変わる（固定オフセットroot+3は度数によっては
       // 一致しない。例: III度・VI度・VII度）ため、diatonicContextから同じ式で
@@ -254,9 +264,11 @@
       const add6Value = diatonicNote(diatonicContext, 5);
       const idx = result.extra.findIndex((v) => v === add6Value);
       if (idx !== -1) result.extra[idx] = result.extra[idx] + shift;
-    } else {
-      result.fifth = result.fifth + shift;
+      return result;
     }
+
+    const result = { ...chord, extra: [...chord.extra] };
+    result.fifth = result.fifth + shift;
     return result;
   }
 

@@ -301,6 +301,20 @@ const { applyAlteration } = require("../core.js");
   assert.strictEqual(r.fifth, 2);
 }
 
+// IV度付加6下変・付加4下変は理論上不成立のためエラー（下変は「V度のV度」専用）
+{
+  const chord = { root: -1, third: 3, fifth: 0, extra: [2] };
+  assert.throws(() => {
+    applyAlteration(chord, { add6: true, add4: false }, { up: false, down: true }, ivDegreeContext);
+  }, ChordError);
+}
+{
+  const chord = { root: -1, third: 3, fifth: 0, extra: [2, 5] };
+  assert.throws(() => {
+    applyAlteration(chord, { add6: false, add4: true }, { up: false, down: true }, ivDegreeContext);
+  }, ChordError);
+}
+
 console.log("Task 7: OK");
 
 const { applyOmissionAndInversion } = require("../core.js");
