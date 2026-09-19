@@ -431,4 +431,17 @@
   { "name": "I度2転は範囲内で引き続き成立する", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"I","special":null,"form":{},"alteration":{},"omission":{},"inversion":2}}, "expectedNotes": ["G","C","E"], "expectedPcs": [7,0,4] },
 
   { "name": "V度の上変と下変の同時指定はエラー（矛盾した指定）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"V","special":null,"form":{},"alteration":{"up":true,"down":true},"omission":{},"inversion":0}}, "expectedError": true }
+,
+
+  { "name": "原典p.129 V̇↓諸和音一覧表: V度の準V度7下変根省(C Dur)【§3欠落分】", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[{"degree":"V","table":"auto","forceQuality":null}],"chord":{"degree":"V","special":"quasi","form":{"seventh":true},"alteration":{"down":true},"omission":{"root":true},"inversion":0}}, "expectedNotes": ["Fis","As","C"], "expectedPcs": [6,8,0] },
+  { "name": "原典p.129 V̇↓諸和音一覧表: V度のV度7下変根省(c Moll)【§3欠落分】", "spec": {"mainKey":{"index":0,"quality":"minor"},"innerChain":[{"degree":"V","table":"auto","forceQuality":null}],"chord":{"degree":"V","special":null,"form":{"seventh":true},"alteration":{"down":true},"omission":{"root":true},"inversion":0}}, "expectedNotes": ["Fis","As","C"], "expectedPcs": [6,8,0] },
+
+  { "name": "下変はV̇（V度のV度）専用: プレーンV度下変はエラー（原典p.128「V̇諸和音の下方変位」）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"V","special":null,"form":{},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true },
+  { "name": "下変はV̇専用: III度下変はエラー", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[],"chord":{"degree":"III","special":null,"form":{},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true },
+  { "name": "下変はV̇専用: V度のIV度下変はエラー（内部調はV度調だが和音の度数がIV）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[{"degree":"V","table":"auto","forceQuality":null}],"chord":{"degree":"IV","special":null,"form":{},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true },
+  { "name": "下変はV̇専用: IV度のV度7下変はエラー（和音はV度だが内部調がIV度調）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[{"degree":"IV","table":"auto","forceQuality":null}],"chord":{"degree":"V","special":null,"form":{"seventh":true},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true },
+  { "name": "下変はV̇専用: 変位VII度下変はエラー（specialで度数が置換される形）", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[{"degree":"V","table":"auto","forceQuality":null}],"chord":{"degree":"VII","special":"raisedVII","form":{},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedError": true },
+
+  { "name": "下変の入れ子判定は最終レベルで行う: VI度調のV度のV度下変は成立(C Dur)", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[{"degree":"VI","table":"auto","forceQuality":null},{"degree":"V","table":"auto","forceQuality":null}],"chord":{"degree":"V","special":null,"form":{},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedNotes": ["H","Dis","F"], "expectedPcs": [11,3,5] },
+  { "name": "下変の入れ子判定は最終レベルで行う: VI度調のV度のV度7下変は成立(C Dur)", "spec": {"mainKey":{"index":0,"quality":"major"},"innerChain":[{"degree":"VI","table":"auto","forceQuality":null},{"degree":"V","table":"auto","forceQuality":null}],"chord":{"degree":"V","special":null,"form":{"seventh":true},"alteration":{"down":true},"omission":{},"inversion":0}}, "expectedNotes": ["H","Dis","F","A"], "expectedPcs": [11,3,5,9] }
 ]

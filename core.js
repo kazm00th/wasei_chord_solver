@@ -246,9 +246,23 @@
 
   // ==================== 上変・下変 ====================
 
-  function applyAlteration(chord, form, alteration, diatonicContext, quality) {
+  function applyAlteration(chord, form, alteration, diatonicContext, quality, isVofV) {
     const shift = alteration.up ? 7 : alteration.down ? -7 : 0;
     if (shift === 0) return { ...chord, extra: [...chord.extra] };
+
+    // 付加6・付加4への下変は、より具体的な理由（S機能側に下変の節が無い）を
+    // 後段で個別に案内するため、ここでは対象外にする。
+    if (alteration.down && !isVofV && !(form.add6 || form.add4)) {
+      // 『総合和声』実技篇 第5章 p.128「2 V̇諸和音の下方変位（V̇↓）」——下方変位は
+      // 節そのものがV̇諸和音（V度のV度族）に対して立てられており、定義も
+      // 「短調のV̇諸和音の第5音を下方変位（↓5）した形」。他の音度に対する
+      // 下方変位の規定は原典に存在しない。
+      // 構造的な理由もp.129に明記されている:「短調のV̇諸和音の第5音は、もともと
+      // 上方変位VI（↑VI）音である（p.125）。従って、下方変位（↓5）した場合、
+      // 反って固有のVI音に戻ることになる」——第5音が↑VI音であるのはV̇諸和音だけで、
+      // プレーンV度やIII度の第5音を半音下げる操作にはこの根拠が無い。
+      throw new ChordError("下変は「V度のV度」（V̇諸和音）の第5音にのみ適用できます");
+    }
 
     if (!(form.add6 || form.add4) && alteration.up && quality !== "major") {
       // HANDOFF §7.7.1注1「V諸和音との形体上の類似性ゆえに、他音度の長3和音・
@@ -357,7 +371,20 @@
       if (alteration.up && alteration.down) {
         throw new ChordError("上変と下変を同時に指定することはできません");
       }
-      const withAlteration = applyAlteration(withForm, form, alteration, chordDegree.diatonicContext, chordDegree.quality);
+      // 下変の適用可否は「V度のV度」という入れ子構造そのもので決まる（原典p.128）。
+      // 内部調連鎖の最終レベルがV度調で、かつ和音自体の度数もV度であること——
+      // ナポリII度・変位VII度・ドリアIV度のように special が度数を置き換える形は
+      // V̇ではないので対象外（"quasi"は度数を変えないので対象に含む）。
+      const lastLevel = spec.innerChain && spec.innerChain.length
+        ? spec.innerChain[spec.innerChain.length - 1]
+        : null;
+      const isVofV =
+        !!lastLevel &&
+        lastLevel.degree === "V" &&
+        spec.chord.degree === "V" &&
+        (!spec.chord.special || spec.chord.special === "quasi");
+
+      const withAlteration = applyAlteration(withForm, form, alteration, chordDegree.diatonicContext, chordDegree.quality, isVofV);
 
       const omission = {
         root: !!omissionSpec.root,
