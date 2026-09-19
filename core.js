@@ -45,14 +45,17 @@
   const MAJOR_QUALITY = { I: "major", II: "minor", III: "minor", IV: "major", V: "major", VI: "minor", VII: "diminished" };
   const MINOR_QUALITY = { I: "minor", II: "diminished", III: "major", IV: "minor", V: "minor", VI: "major", VII: "major" };
 
+  // layer = この特殊度数が属する旋法の層（『総合和声』p.100-101の調関係一覧表。
+  // ナポリII調は短調の固有II調の代用、変位VII調は長調の固有VII調の代用なので、
+  // それぞれ短調・長調の層にしか現れない。resolveLevelで検証する）。
   const SPECIAL_DEGREES = {
-    napoliII: { offset: -5, quality: "major" },
+    napoliII: { offset: -5, quality: "major", layer: "minor" },
     // 変位VII調（無印）の既定質はminor（h moll = プラス指定なしの標準形）。
     // 「長7度上の長調」ではなく「長7度上の短調」がプラス/マイナス指定なしの
     // 基本形で、プラス変位VII調（forceQuality="major"）でH Durになる。
     // ユーザー確認済み（マイナス/プラスが「同主短調/同主長調」を表すという
     // §5の一般規則どおり、変位VII調も他の度数調と同じ長調/短調の二重性を持つ）。
-    raisedVII: { offset: 5, quality: "minor" }
+    raisedVII: { offset: 5, quality: "minor", layer: "major" }
   };
 
   class ChordError extends Error {}
@@ -60,9 +63,36 @@
   // level = { degree, table: "auto"|"quasi"|"relative", forceQuality: null|"major"|"minor" }
   const VALID_DEGREES = ["I", "II", "III", "IV", "V", "VI", "VII"];
 
-  function resolveLevel(rootIndex, currentQuality, level, allowDiminished = false) {
+  // checkLayer: ナポリII調・変位VII調の「層」検証を行うか。原典p.100-101の根拠は
+  // 「調関係の一覧表」＝内部調についてのものなので、内部調連鎖（resolveChain）から
+  // 呼ぶときだけtrueにする。和音レベルのchord.special="raisedVII"に同じ制約が
+  // 掛かるかは原典未確認のため対象外（HANDOFF §9.12参照）。和音レベルのナポリII度は
+  // chordSpecialToLevelが独自にlocalQualityを検証しており、そちらは原典p.99で確認済み。
+  function resolveLevel(rootIndex, currentQuality, level, allowDiminished = false, checkLayer = false) {
+    // 「実効的な層の旋法」——準(quasi)なら短調の層、同主(relative)なら長調の層、
+    // 指定が無ければ現在の文脈の旋法をそのまま引き継ぐ。通常の度数のオフセット表
+    // 選択と、下の特殊度数（ナポリII調・変位VII調）の層チェックの両方に使う。
+    const useMajorTable =
+      level.table === "relative" ? true :
+      level.table === "quasi" ? false :
+      currentQuality === "major";
+
     if (level.degree === "napoliII" || level.degree === "raisedVII") {
       const special = SPECIAL_DEGREES[level.degree];
+      // 『総合和声』実技篇 p.100-101「調関係の一覧表」——ナポリII調・変位VII調は
+      // それぞれ短調・長調の層にしか現れない:
+      //   注1「長調の固有VII調は存在しないが、これに準ずるものとして変位VII調(^VII)を加えうる」
+      //   注2「短調の固有II調は存在しないが、これに準ずるものとしてナポリII調(Ⅱ̸)を加えうる」
+      // 表の配置がこれを裏づける——C dur主調では(a)固有和音調に^VII／(c)準固有和音調に
+      // 「°Ⅱ̸」、c moll主調では(a)固有和音調にⅡ̸／(c)同主固有和音調に「^△VII」。
+      // つまり異なる旋法の層から呼ぶ場合は°(準)/△(同主)が必須で、素の呼び出しは
+      // 原典に存在しない。判定は通常の度数と同じ「実効的な層の旋法」で行う。
+      if (checkLayer && special.layer === "major" && !useMajorTable) {
+        throw new ChordError("変位VII調（変位VII度）は長調の層にのみ存在します（短調から用いるには「同主」を付けて同主変位VII調としてください）");
+      }
+      if (checkLayer && special.layer === "minor" && useMajorTable) {
+        throw new ChordError("ナポリII調（ナポリII度）は短調の層にのみ存在します（長調から用いるには「準」を付けて準ナポリII調としてください）");
+      }
       return {
         rootIndex: rootIndex + special.offset,
         quality: level.forceQuality || special.quality
@@ -72,11 +102,6 @@
     if (!VALID_DEGREES.includes(level.degree)) {
       throw new ChordError(`不明な度数: ${level.degree}`);
     }
-
-    const useMajorTable =
-      level.table === "relative" ? true :
-      level.table === "quasi" ? false :
-      currentQuality === "major";
 
     const offsets = useMajorTable ? MAJOR_OFFSETS : MINOR_OFFSETS;
     const qualityTable = useMajorTable ? MAJOR_QUALITY : MINOR_QUALITY;
@@ -150,7 +175,10 @@
         if (localQuality !== "major") {
           throw new ChordError("準ナポリII度は長調でのみ使用できます（短調ではナポリII度を使用してください）");
         }
-        return { degree: "napoliII", table: "auto", forceQuality: null };
+        // 原典p.99の終止定型が長調側を「°Ⅱ̸」と記すとおり、準ナポリII度は
+        // ナポリII度を準（同主短調の層）経由で借用した形。table:"auto"のままだと
+        // 長調の層で呼んだことになり、resolveLevelの層チェックに抵触する。
+        return { degree: "napoliII", table: "quasi", forceQuality: null };
       case "raisedVII":
         if (degree !== "VII") throw new ChordError("変位VII度はVII度にのみ指定できます");
         return { degree: "raisedVII", table: "auto", forceQuality: null };
@@ -316,7 +344,7 @@
     let quality = mainKey.quality;
     const steps = [`主調（index ${rootIndex}, ${quality}）`];
     for (const level of chain) {
-      const result = resolveLevel(rootIndex, quality, level);
+      const result = resolveLevel(rootIndex, quality, level, false, true);
       rootIndex = result.rootIndex;
       quality = result.quality;
       steps.push(`${describeLevel(level)}（index ${rootIndex}, ${quality}）`);
