@@ -382,6 +382,21 @@
 
   // ==================== 統合関数 ====================
 
+  // form / alteration / omission は「指定の無いキー = false」として読むので、
+  // キーを1文字打ち間違えると、エラーにならずに指定が黙って消える
+  // （{sevnth:true} が {} と同じ結果になる）。実際に {added6:true}（正しくは
+  // add6）を渡して上変が消えたまま F A C を受け取る事故が起きている
+  // （HANDOFF.md §9.14）。原典は形体指数を 7・9・+6・+4 の4種と定めている
+  // （付録II p.520、HANDOFF.md §2.5）ので、それ以外のキーは常に誤りと言い切れる。
+  function assertKnownKeys(obj, allowed, label) {
+    const unknown = Object.keys(obj).filter((k) => !allowed.includes(k));
+    if (unknown.length) {
+      throw new ChordError(
+        `${label} に未知のキーがあります: ${unknown.join(", ")}（使えるのは ${allowed.join(" / ")} のみ）`
+      );
+    }
+  }
+
   function deriveChord(spec) {
     try {
       const chain = resolveChain(spec.mainKey, spec.innerChain);
@@ -391,6 +406,9 @@
       });
 
       const formSpec = spec.chord.form || {};
+      // 検査は正規化の**前**に、生の formSpec に対して行う。下で4つの boolean に
+      // 畳んでしまうと applyForm 側からは未知キーが構造上見えなくなるため。
+      assertKnownKeys(formSpec, ["seventh", "ninth", "add6", "add4"], "form");
       const alterationSpec = spec.chord.alteration || {};
       const omissionSpec = spec.chord.omission || {};
 
