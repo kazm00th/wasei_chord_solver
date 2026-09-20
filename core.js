@@ -274,9 +274,19 @@
 
   // ==================== 上変・下変 ====================
 
-  function applyAlteration(chord, form, alteration, diatonicContext, quality, isVofV) {
+  function applyAlteration(chord, form, alteration, diatonicContext, quality, isVofV, isVInMinorKey) {
     const shift = alteration.up ? 7 : alteration.down ? -7 : 0;
     if (shift === 0) return { ...chord, extra: [...chord.extra] };
+
+    if (alteration.up && isVInMinorKey) {
+      // 『総合和声』実技篇 第4章 p.121注1——「短調内のⅤ諸和音は上方変位音（↑Ⅱ）が
+      // 固有Ⅲ音と一致し、変位音として機能しないため、用いられない」。
+      // 例: c Moll の Ⅴ度上変は g h dis となるが、dis は c Moll の固有Ⅲ音 es と
+      // 異名同音で一致してしまい、変位になっていない。
+      // 短調のⅤは和声的短音階により長三和音なので、下の quality!=="major" 判定では
+      // 塞げない（別の制約であることに注意。HANDOFF.md §9.5 の区別表を参照）。
+      throw new ChordError("短調内のV度諸和音には上変を適用できません（上方変位音が固有III音と一致し、変位として機能しないため）");
+    }
 
     // 付加6・付加4への下変は、より具体的な理由（S機能側に下変の節が無い）を
     // 後段で個別に案内するため、ここでは対象外にする。
@@ -412,7 +422,14 @@
         spec.chord.degree === "V" &&
         (!spec.chord.special || spec.chord.special === "quasi");
 
-      const withAlteration = applyAlteration(withForm, form, alteration, chordDegree.diatonicContext, chordDegree.quality, isVofV);
+      // 和音が置かれている調（内部調があればその調）が短調で、かつその調のⅤ度和音か。
+      // p.121注1の制約はこの条件で働く（主調の直接のⅤでも、短調の内部調のⅤでも同じ）。
+      const isVInMinorKey =
+        chain.quality === "minor" &&
+        spec.chord.degree === "V" &&
+        (!spec.chord.special || spec.chord.special === "quasi");
+
+      const withAlteration = applyAlteration(withForm, form, alteration, chordDegree.diatonicContext, chordDegree.quality, isVofV, isVInMinorKey);
 
       const omission = {
         root: !!omissionSpec.root,
