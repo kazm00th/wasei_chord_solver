@@ -411,6 +411,10 @@
       assertKnownKeys(formSpec, ["seventh", "ninth", "add6", "add4"], "form");
       const alterationSpec = spec.chord.alteration || {};
       const omissionSpec = spec.chord.omission || {};
+      // form と同じ理由（下で boolean に正規化すると未知キーが見えなくなる）。
+      // 変位は上変・下変の2種、省略は根省・5省の2種しかない（HANDOFF.md §2）。
+      assertKnownKeys(alterationSpec, ["up", "down"], "alteration");
+      assertKnownKeys(omissionSpec, ["root", "fifth"], "omission");
 
       const form = {
         seventh: !!formSpec.seventh,
