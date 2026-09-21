@@ -52,13 +52,17 @@
     const a = spec.chord.alteration || {};
     const o = spec.chord.omission || {};
     const on = (obj, k) => (obj[k] ? 1 : 0);
+    // **9度は7度を含む**（core.js: `form.seventh` が無くても `form.ninth` だけで
+    // 7度の音が入る）。UI で「9度」だけを選んだ場合と、カタログのように
+    // 7度＋9度を立てた場合は同じ和音なので、指紋でも同一視する。
+    const seventhBit = f.seventh || f.ninth ? 1 : 0;
     return [
       spec.mainKey.quality,
       (spec.innerChain || []).map((l) =>
         `${l.degree}:${l.table || "auto"}:${l.forceQuality || "-"}`).join(">"),
       spec.chord.degree,
       spec.chord.special || "-",
-      `${on(f, "seventh")}${on(f, "ninth")}${on(f, "add6")}${on(f, "add4")}`,
+      `${seventhBit}${on(f, "ninth")}${on(f, "add6")}${on(f, "add4")}`,
       `${on(a, "up")}${on(a, "down")}`,
       `${on(o, "root")}${on(o, "fifth")}`
     ].join("|");

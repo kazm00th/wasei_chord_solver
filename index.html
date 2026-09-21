@@ -16,6 +16,9 @@
   #tengi tr.input { background: #fffbe6; font-weight: bold; }
   #tengi tr.same-key { background: #f4f8ff; }
   #tengi .note { color: #666; font-size: 0.9em; margin: 0.4em 0; }
+  #mainKeyName { margin-top: 0.4em; font-size: 1.1em; }
+  #mainKeyName .name { font-weight: bold; }
+  #mainKeyName .bad { color: #c00; font-weight: normal; font-size: 0.9em; }
 </style>
 </head>
 <body>
@@ -29,6 +32,7 @@
     <option value="major">長調</option>
     <option value="minor">短調</option>
   </select>
+  <div id="mainKeyName"></div>
 </fieldset>
 
 <fieldset>
@@ -181,20 +185,20 @@ function renderTengi(result, spec) {
     return;
   }
 
-  if (out.isolated) {
+  // 「読み替えが無い」かどうかは、カタログのグループが1件かどうかではなく
+  // **入力以外の行が出るかどうか**で決める。入力がカタログに無い和音のときは、
+  // グループが1件（孤立）でもその1件は立派な読み替え先になる
+  // （例: C Dur の I度9 は G Dur の IV度9。I度9 自体はカタログに無い）。
+  const others = out.rows.filter((r) => !r.isInput).length;
+
+  if (others === 0) {
     html += '<p class="note">なし（<b>孤立した和音</b>——移調しても他の和音に読み替えられません）。</p>';
   } else {
-    const others = out.rows.filter((r) => !r.isInput).length;
     html += `<p class="note">${others} 件の読み替えがあります`
       + (out.period < 12
         ? `（この構成音は ${out.period} 半音ごとに自分自身に重なるので、各記号が ${12 / out.period} つの調に現れます）`
         : "")
       + "。</p>";
-  }
-
-  if (!out.rows.some((r) => r.isInput)) {
-    html += '<p class="note">入力した和音そのものはカタログに無いので、'
-      + "下の一覧は同じ構成音を持つ和音の読み方です。</p>";
   }
 
   html += "<table>";
@@ -208,8 +212,27 @@ function renderTengi(result, spec) {
   div.innerHTML = html;
 }
 
+// 主調をドイツ音名で表示する。五度圏インデックスがそのまま主音の位置なので
+// indexToNoteName で綴りが決まる（長調は大文字、短調は小文字）。
+function renderMainKeyName() {
+  const raw = document.getElementById("mainKeyIndex").value;
+  const div = document.getElementById("mainKeyName");
+  const index = parseInt(raw, 10);
+  if (raw.trim() === "" || Number.isNaN(index)) {
+    div.innerHTML = '<span class="bad">五度圏インデックスを入力してください</span>';
+    return;
+  }
+  const quality = document.getElementById("mainKeyQuality").value;
+  const tonic = WaseiCore.indexToNoteName(index);
+  const name = quality === "major" ? `${tonic} Dur` : `${tonic.toLowerCase()} Moll`;
+  div.innerHTML = `主調: <span class="name">${name}</span>`;
+}
+
 document.getElementById("addInnerLevel").addEventListener("click", addInnerLevel);
 document.getElementById("calculate").addEventListener("click", calculate);
+document.getElementById("mainKeyIndex").addEventListener("input", renderMainKeyName);
+document.getElementById("mainKeyQuality").addEventListener("change", renderMainKeyName);
+renderMainKeyName();
 </script>
 </body>
 </html>

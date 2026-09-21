@@ -138,6 +138,39 @@ test("lookup: 入力行は isInput 印が付き、ちょうど1件", () => {
   assert.strictEqual(marked[0].symbol, "V度7");
 });
 
+test("lookup: 9度だけを立てた入力にも入力印が付く（9度は7度を含む）", () => {
+  // UI で「9度」だけにチェックを入れた形。カタログ側は 7度+9度 で書かれているが
+  // core.js が7度の音を自動で足すので同じ和音——指紋でも同一視する必要がある。
+  const out = rowsOf(SPEC(2, "major", "V", null, { ninth: true }, { up: true }, {}));
+  const marked = out.rows.filter((r) => r.isInput);
+  assert.strictEqual(marked.length, 1, "9度だけの入力に入力印が付かない");
+  assert.strictEqual(marked[0].key, "D");
+  assert.strictEqual(marked[0].symbol, "V度9上変");
+  assert.strictEqual(out.rows.filter((r) => r.sameKey).length, 0);
+});
+
+test("lookup: 7度+9度 と 9度だけ は同じ結果になる", () => {
+  const a = rowsOf(SPEC(0, "major", "V", null, { seventh: true, ninth: true }, {}, {}));
+  const b = rowsOf(SPEC(0, "major", "V", null, { ninth: true }, {}, {}));
+  assert.deepStrictEqual(
+    b.rows.map((r) => r.key + " " + r.symbol + (r.isInput ? "*" : "")),
+    a.rows.map((r) => r.key + " " + r.symbol + (r.isInput ? "*" : ""))
+  );
+});
+
+test("lookup: 入力がカタログに無くても、読み替えが1件あれば孤立扱いにしない", () => {
+  // C Dur の I度9 はカタログに無い（§3 の I度族は I度・I度7 のみ）。
+  // グループのメンバーは G Dur の IV度9 の1件（ブログの孤立8種のひとつ）だが、
+  // 入力自身がそのメンバーではないので、**読み替え先として1件出る**。
+  const out = rowsOf(SPEC(0, "major", "I", null, { ninth: true }, {}, {}));
+  assert.strictEqual(out.found, true);
+  assert.strictEqual(out.isolated, true, "カタログのグループとしては孤立");
+  const others = out.rows.filter((r) => !r.isInput);
+  assert.strictEqual(others.length, 1, "それでも読み替えは1件ある");
+  assert.strictEqual(others[0].key, "G");
+  assert.strictEqual(others[0].symbol, "IV度9");
+});
+
 test("lookup: 表に無い構成音は found=false", () => {
   // 全音音階の断片 {0,2,4}: カタログのどのグループにも無い
   const out = lookup([0, 2, 4], table);
