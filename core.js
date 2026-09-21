@@ -475,10 +475,31 @@
 
       const indices = applyOmissionAndInversion(withAlteration, omission, inversion);
 
+      const warnings = [];
+      // 【長調の下変には °（準）が要る】原理篇 p.457-458——下方変位は主調内の単なる
+      // 変位としては存在せず、下方変位音を固有音とする他調関連を生ずる。自立構成音と
+      // して使われた下変和音は「主調のⅤ□」ではなく「°Ⅳ調（短調）のV̇□」として機能する
+      // （p.457 譜例(b')は C Dur の Ⅴ₇下変を `f: V̇₇` と記譜している）。実技篇 p.129 の
+      // 一覧表が長調側の下変5形体をすべて `°` 付きで書くのはこの帰結であって、
+      // 表記上の慣例ではない。
+      //
+      // **エラーにはしない**——`°` の有無で構成音は変わらず曖昧さが無いうえ、原典が
+      // `°` 無しの表記を明示的に禁じてはいない（p.458注はロマン派〜近代の例外にも触れる）。
+      // 「省略された表記」か「不成立の記号」かを断定できないので、§9.8 の方針に従い
+      // 制約化はせず、警告に留める。
+      if (alteration.down && chain.quality === "major" && spec.chord.special !== "quasi") {
+        warnings.push(
+          "長調で下変を用いるときは準（°）を付けるのが原典の表記です" +
+          "——下方変位音は主調の固有音ではなく、この和音は準固有和音として機能します" +
+          "（実技篇 p.129 の一覧表／原理篇 p.458）。構成音は変わりません。"
+        );
+      }
+
       return {
         notes: indices.map(indexToNoteName),
         pcs: indices.map(indexToPitchClass),
-        steps: [...chain.steps, `和音: ${spec.chord.degree}度（${chordDegree.quality}）`]
+        steps: [...chain.steps, `和音: ${spec.chord.degree}度（${chordDegree.quality}）`],
+        warnings
       };
     } catch (err) {
       if (err instanceof ChordError) return { error: err.message };
