@@ -425,3 +425,59 @@ const { deriveChord } = require("../core.js");
 }
 
 console.log("Task 9: OK");
+
+// ==================== 長調の下変には °（準）が要る（警告） ====================
+// 原理篇 p.457-458: 下方変位は主調内の単なる変位としては存在せず、下方変位音を
+// 固有音とする他調関連を生ずる。自立構成音として使われた下変和音は「主調のⅤ□」
+// ではなく「°Ⅳ調（短調）のV̇□」として機能する（p.457 譜例(b')は C Dur の
+// Ⅴ₇下変を `f: V̇₇` と記譜している）。実技篇 p.129 の一覧表が長調側の下変5形体を
+// すべて `°` 付きで書くのはこの帰結。
+// 構成音は `°` の有無で変わらないので**エラーにはせず警告**に留める。
+{
+  const V_OF_V = [{ degree: "V", table: "auto", forceQuality: null }];
+  const mk = (quality, special) => ({
+    mainKey: { index: 0, quality },
+    innerChain: V_OF_V,
+    chord: { degree: "V", special, form: {}, alteration: { down: true }, omission: {}, inversion: 0 }
+  });
+
+  const noQuasiMajor = deriveChord(mk("major", null));
+  assert.ok(!noQuasiMajor.error, "長調の °無し下変は構成音は出る（エラーにしない）");
+  assert.deepStrictEqual(noQuasiMajor.notes, ["D", "Fis", "As"]);
+  assert.ok(Array.isArray(noQuasiMajor.warnings), "warnings 配列が返る");
+  assert.strictEqual(noQuasiMajor.warnings.length, 1, "警告はちょうど1件");
+  assert.ok(/準/.test(noQuasiMajor.warnings[0]), "警告文が準に言及する: " + noQuasiMajor.warnings[0]);
+  assert.ok(/p\.129|p\.458/.test(noQuasiMajor.warnings[0]), "警告文が典拠を示す");
+  console.log("Task A1: OK");
+
+  const quasiMajor = deriveChord(mk("major", "quasi"));
+  assert.ok(!quasiMajor.error);
+  assert.deepStrictEqual(quasiMajor.notes, ["D", "Fis", "As"], "準を付けても構成音は同じ");
+  assert.deepStrictEqual(quasiMajor.warnings, [], "正規の表記には警告を出さない");
+  console.log("Task A2: OK");
+
+  const minorPlain = deriveChord(mk("minor", null));
+  assert.ok(!minorPlain.error);
+  assert.deepStrictEqual(minorPlain.notes, ["D", "Fis", "As"]);
+  assert.deepStrictEqual(minorPlain.warnings, [], "短調側は °無しが正規なので警告しない");
+  console.log("Task A3: OK");
+
+  // 上変には出ない（上変は主調内に留まる。p.457 譜例(a')は C: のまま）
+  const up = deriveChord({
+    mainKey: { index: 0, quality: "major" },
+    innerChain: [],
+    chord: { degree: "V", special: null, form: {}, alteration: { up: true }, omission: {}, inversion: 0 }
+  });
+  assert.ok(!up.error, up.error);
+  assert.deepStrictEqual(up.warnings, [], "上変は警告の対象外");
+  console.log("Task A4: OK");
+
+  // 変位なしの和音にも warnings は必ず生える（呼び出し側が存在検査を省ける）
+  const plain = deriveChord({
+    mainKey: { index: 0, quality: "major" },
+    innerChain: [],
+    chord: { degree: "I", special: null, form: {}, alteration: {}, omission: {}, inversion: 0 }
+  });
+  assert.deepStrictEqual(plain.warnings, [], "警告が無くても warnings は空配列");
+  console.log("Task A5: OK");
+}

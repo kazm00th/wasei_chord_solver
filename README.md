@@ -24,7 +24,7 @@ node test/tengi.test.js
 
 ## ファイル構成
 
-- `core.js` — 計算ロジック本体（DOM非依存、Node/ブラウザ共用のUMD形式）
+- `core.js` — 計算ロジック本体（DOM非依存、Node/ブラウザ共用のUMD形式）。`deriveChord` は `notes`・`pcs`・`steps` に加え **`warnings`（文字列配列、常に存在）** を返す。構成音は正しいが原典の表記から外れる場合に入る（現状1件: 長調の下変に準が無い）
 - `catalog.js` — 『総合和声』の和音カタログ〈記号 × 旋法〉106件（記号→spec。構成音は持たない）。harmony の `data/stage_b_input.json` のコピーで、同期は harmony 側の `data/verify_solver_catalog.py` が検査する。手で編集しない
 - `tengi.js` — 転義表の生成と参照（正規化・グループ化・調名付け）
 - `index.html` — UI
